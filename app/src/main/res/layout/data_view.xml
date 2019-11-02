@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/time_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:layout_marginStart="20dp"
+        android:hint="Doc ID"/>
+
+    <TextView
+        android:id="@+id/x_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textAppearance="?android:textAppearance"
+        android:layout_marginStart="25dp"
+        android:hint="x value"/>
+    <TextView
+        android:id="@+id/y_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textAppearance="?android:textAppearance"
+        android:layout_marginStart="25dp"
+        android:hint="y value"/>
+    <TextView
+        android:id="@+id/z_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textAppearance="?android:textAppearance"
+        android:layout_marginStart="25dp"
+        android:hint="z value"/>
+
+    <TextView
+        android:id="@+id/tesla"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textAppearance="?android:textAppearance"
+        android:layout_marginStart="25dp"
+        android:hint="tesla"/>
+
+    <TextView
+        android:id="@+id/orient"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textAppearance="?android:textAppearance"
+        android:layout_marginStart="25dp"
+        android:layout_marginBottom="10dp"
+        android:hint="orientation"/>
+
+</LinearLayout>

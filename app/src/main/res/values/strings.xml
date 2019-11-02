@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Minet</string>
+    <string name="home_cart">Cartographer</string>
+    <string name="cart_start">Start Reading</string>
+    <string name="hello">Hello Jared</string>
+    <string name="cart_calc">calc</string>
+</resources>

@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "588009629194",
+    "firebase_url": "https://magneticlocalization.firebaseio.com",
+    "project_id": "magneticlocalization",
+    "storage_bucket": "magneticlocalization.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588009629194:android:521014e7f8fbc9802221f3",
+        "android_client_info": {
+          "package_name": "com.micool.magnet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "588009629194-5dtbl19i2esbj38kqcvsv3mmdpj7ejk5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA19ZdD4uH5X_7StS8SvBd4VLK_e_1HNNI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "588009629194-5dtbl19i2esbj38kqcvsv3mmdpj7ejk5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588009629194:android:2aa53642c092f2742221f3",
+        "android_client_info": {
+          "package_name": "com.micool.minet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "588009629194-5dtbl19i2esbj38kqcvsv3mmdpj7ejk5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA19ZdD4uH5X_7StS8SvBd4VLK_e_1HNNI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "588009629194-5dtbl19i2esbj38kqcvsv3mmdpj7ejk5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
