@@ -29,9 +29,6 @@ public class RoomDB extends MainActivity {
 
     private FirebaseFirestore db;
 
-    private DataAdapter dataAdapter;
-    private ArrayList<Data> dataList;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,8 +56,8 @@ public class RoomDB extends MainActivity {
                         dataArrayList.add(data);
                     }
                     ListView dataList = findViewById(R.id.dataList);
-                    DataAdapter mMissionAdapter = new DataAdapter(RoomDB.this, dataArrayList);
-                    dataList.setAdapter(mMissionAdapter);
+                    DataAdapter dataAdapter = new DataAdapter(RoomDB.this, dataArrayList);
+                    dataList.setAdapter(dataAdapter);
                 } else {
                     Log.d("RoomDB", "Error getting documents: ", task.getException());
                 }

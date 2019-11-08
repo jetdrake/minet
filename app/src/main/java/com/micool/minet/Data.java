@@ -3,24 +3,28 @@ package com.micool.minet;
 import java.sql.Timestamp;
 
 public class Data {
-    private Double x, y, z, tesla, orientation;
+    private float x, y, z;
+    private float azimuth, pitch, roll;
+    private double tesla;
     private String ID = new Timestamp(System.currentTimeMillis()).toString();
 
     public Data() {}
 
-    public Data(Double x, Double y, Double z, Double tesla, Double orientation) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+    public Data(float[] mag, double tesla, float[] orientation) {
+        this.x = mag[0];
+        this.y = mag[1];
+        this.z = mag[2];
         this.tesla = tesla;
-        this.orientation = orientation;
+        this.azimuth = orientation[0];
+        this.pitch = orientation[1];
+        this.roll = orientation[2];
     }
 
     // no orientation data
-    public Data(Double x, Double y, Double z, Double tesla) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+    public Data(float[] mag, double tesla) {
+        this.x = mag[0];
+        this.y = mag[1];
+        this.z = mag[2];
         this.tesla = tesla;
     }
 
@@ -28,43 +32,31 @@ public class Data {
         return ID;
     }
 
-    public Double getX() {
+    public float getX() {
         return x;
     }
 
-    public void setX(Double x) {
-        this.x = x;
-    }
-
-    public Double getY() {
+    public float getY() {
         return y;
     }
 
-    public void setY(Double y) {
-        this.y = y;
-    }
-
-    public Double getZ() {
+    public float getZ() {
         return z;
     }
 
-    public void setZ(Double z) {
-        this.z = z;
-    }
-
-    public Double getTesla() {
+    public double getTesla() {
         return tesla;
     }
 
-    public void setTesla(Double tesla) {
-        this.tesla = tesla;
+    public float getAzimuth() {
+        return azimuth;
     }
 
-    public Double getOrientation() {
-        return orientation;
+    public float getPitch() {
+        return pitch;
     }
 
-    public void setOrientation(Double orientation) {
-        this.orientation = orientation;
+    public float getRoll() {
+        return roll;
     }
 }

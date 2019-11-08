@@ -1,125 +1,153 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/relativeLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/x"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="102dp"
-        android:layout_marginBottom="28dp"
-        android:text="x"
-        app:layout_constraintHorizontal_chainStyle="spread"
-        app:layout_constraintBottom_toTopOf="@+id/room"
-        app:layout_constraintEnd_toStartOf="@+id/y"
-        app:layout_constraintStart_toStartOf="parent" />
+    <TableRow>
+        <TextView
+            android:paddingTop="10dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Mag Data"
+            android:textSize="36sp"/>
 
-    <TextView
-        android:id="@+id/y"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginEnd="50dp"
-        android:layout_marginBottom="28dp"
-        android:text="y"
-        app:layout_constraintBottom_toTopOf="@+id/room"
-        app:layout_constraintEnd_toStartOf="@+id/z"
-        app:layout_constraintStart_toEndOf="@+id/x" />
+        <TextView
+            android:id="@+id/reading"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="0.0"
+            android:textSize="36sp"/>
 
-    <TextView
-        android:id="@+id/z"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="101dp"
-        android:layout_marginBottom="29dp"
-        android:text="z"
-        app:layout_constraintBottom_toTopOf="@+id/room"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/y" />
+    </TableRow>
 
-    <TextView
-        android:id="@+id/reading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="176dp"
-        android:layout_marginEnd="185dp"
-        android:layout_marginBottom="21dp"
-        android:text="0.0"
-        android:textSize="36sp"
-        app:layout_constraintBottom_toTopOf="@+id/y"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+    <TableRow>
 
-    <EditText
-        android:id="@+id/room"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="99dp"
-        android:layout_marginEnd="99dp"
-        android:layout_marginBottom="22dp"
-        android:ems="10"
-        android:hint="Room"
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toTopOf="@+id/startButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        <TextView
+            android:id="@+id/x"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:text="x"/>
 
-    <ToggleButton
-        android:id="@+id/startButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="165dp"
-        android:layout_marginEnd="165dp"
-        android:layout_marginBottom="232dp"
-        android:textOff="Start"
-        android:textOn="Stop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        <TextView
+            android:id="@+id/y"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_column="2"
+            android:text="y" />
 
-    <TextView
-        android:id="@+id/calc_room"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="76dp"
-        android:text="preview"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/calc"
-        app:layout_constraintStart_toStartOf="parent" />
+        <TextView
+            android:id="@+id/z"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_column="3"
+            android:text="z"/>
 
-    <Button
-        android:id="@+id/calc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="80dp"
-        android:layout_marginBottom="68dp"
-        android:text="@string/cart_calc"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/calc_room" />
+    </TableRow>
+
+    <TableRow>
+        <TextView
+            android:paddingTop="10dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Grav Data"
+            android:textSize="36sp"/>
+
+        <TextView
+            android:id="@+id/accreading"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="0.0"
+            android:textSize="36sp"/>
+
+    </TableRow>
+
+    <TableRow>
+        <TextView
+            android:id="@+id/accx"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:text="x"/>
+
+        <TextView
+            android:id="@+id/accy"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_column="2"
+            android:text="y" />
+
+        <TextView
+            android:id="@+id/accz"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_column="3"
+            android:text="z"/>
 
 
-    <Button
-        android:id="@+id/db"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="165dp"
-        android:layout_marginEnd="165dp"
-        android:layout_marginBottom="40dp"
-        android:text="Room DB"
-        app:layout_constraintBottom_toTopOf="@+id/calc"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent" />
+
+    </TableRow>
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TableRow>
+        <EditText
+            android:paddingTop="50dp"
+            android:id="@+id/room"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Room"
+            android:inputType="textPersonName" />
+
+        <ToggleButton
+            android:id="@+id/startButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="Start"
+            android:textOn="Stop" />
+
+        <Button
+            android:id="@+id/db"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Room DB" />
+    </TableRow>
+
+    <TableRow>
+        <TextView
+            android:paddingTop="10dp"
+            android:id="@+id/calc_room"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="preview"
+            android:textSize="24sp"
+            />
+
+        <Button
+            android:id="@+id/calc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cart_calc"
+            />
+
+    </TableRow>
+
+
+
+
+
+
+</TableLayout>

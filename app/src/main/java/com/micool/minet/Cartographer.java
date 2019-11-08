@@ -6,7 +6,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -14,65 +13,84 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.*;
 
-import org.w3c.dom.Text;
-
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.Locale;
 
 public class Cartographer extends MainActivity implements SensorEventListener {
-
+    //sensors
     private static SensorManager sensorManager;
     private static Sensor magSensor;
-    private static Sensor accSensor;
+    private static Sensor gravSensor;
+
+    //value storage
+    private float[] mGravity = new float[3];
+    private float[] mGeomagnetic = new float[3];
+    private float[] Rm = new float[9];
+    private float[] Im = new float[9];
+    float orientation[] = new float[3];
+    float azimuth;
+    double tesla;
+
+    //buttons, views, and control variables
     TextView reading;
     TextView x;
     TextView y;
     TextView z;
+    TextView accreading;
+    TextView accx;
+    TextView accy;
+    TextView accz;
     Boolean start = false;
-
-    FirebaseFirestore db;
-    String root = "/Localization/Apartment/";
-    String Collection;
     ToggleButton startSending;
     TextView input;
     TextView calc_room;
     Button calc;
     Boolean calcStart = false;
     Button roomdb;
+    int counter = 0;
+
+    //database
+    FirebaseFirestore db;
+    String root = "/Localization/Apartment/";
+    String Collection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cartographer);
 
+        //get SensorManager and create sensors (on every creation)
         sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         magSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        accSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        gravSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+        //get buttons and views
         input = findViewById(R.id.room);
         reading = findViewById(R.id.reading);
         x = findViewById(R.id.x);
         y = findViewById(R.id.y);
         z = findViewById(R.id.z);
+
+        accreading = findViewById(R.id.accreading);
+        accx = findViewById(R.id.accx);
+        accy = findViewById(R.id.accy);
+        accz = findViewById(R.id.accz);
+
+        //controls the data sending
         startSending = findViewById(R.id.startButton);
         startSending.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     String text = input.getText().toString();
-                    Toast.makeText(Cartographer.this, text ,Toast.LENGTH_LONG).show();
                     Collection = text.isEmpty() ? "default" : text;
-                    startSending();
+
+                    Toast.makeText(Cartographer.this, "sending data to: " + Collection ,Toast.LENGTH_LONG).show();
+                    start = true;
                 } else {
-                    stopSending();
+                    Toast.makeText(Cartographer.this, "stopping sending data" ,Toast.LENGTH_LONG).show();
+                    start = false;
                 }
             }
         });
@@ -81,7 +99,6 @@ public class Cartographer extends MainActivity implements SensorEventListener {
         calc_room = findViewById(R.id.calc_room);
         //button
         calc = findViewById(R.id.calc);
-
 
         db = FirebaseFirestore.getInstance();
 
@@ -98,92 +115,88 @@ public class Cartographer extends MainActivity implements SensorEventListener {
 
     }
 
-    public void stopSending() {
-        Toast.makeText(Cartographer.this, "stop sending data",Toast.LENGTH_LONG).show();
-        start = false;
-    }
-    public void startSending() {
-        Toast.makeText(Cartographer.this, "start sending",Toast.LENGTH_LONG).show();
-        start = true;
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
-
-        int slow = 400000000;
-
         if(magSensor != null){
             sensorManager.registerListener(this, magSensor, SensorManager.SENSOR_DELAY_GAME);
         } else {
             Toast.makeText(Cartographer.this, "Magnetic Field Sensor Not supported", Toast.LENGTH_SHORT).show();
         }
 
-        if(accSensor != null){
-            sensorManager.registerListener(this, accSensor, SensorManager.SENSOR_STATUS_ACCURACY_HIGH);
+        if(gravSensor != null){
+            sensorManager.registerListener(this, gravSensor, SensorManager.SENSOR_DELAY_GAME);
         } else {
-            Toast.makeText(Cartographer.this, "Accelerometer Not supported", Toast.LENGTH_SHORT).show();
+            Toast.makeText(Cartographer.this, "Magnetic Field Sensor Not supported", Toast.LENGTH_SHORT).show();
         }
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        sensorManager.unregisterListener(this);
+        sensorManager.unregisterListener(this, gravSensor);
+        sensorManager.unregisterListener(this, magSensor);
     }
-    /*
-    double previousTesla = 0.0;
-    int runCounter = 0;
-     */
+
     @Override
     public void onSensorChanged(SensorEvent event) {
 
-        if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
-            return;
+        final float alpha = 0.97f;
+
+
+        synchronized (this) {
+            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+
+                mGravity[0] = alpha * mGravity[0] + (1 - alpha)
+                        * event.values[0];
+                mGravity[1] = alpha * mGravity[1] + (1 - alpha)
+                        * event.values[1];
+                mGravity[2] = alpha * mGravity[2] + (1 - alpha)
+                        * event.values[2];
+
+                // mGravity = event.values;
+
+            }
+
+
+            if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+
+                //get adjusted values
+                mGeomagnetic[0] = alpha * mGeomagnetic[0] + (1 - alpha)
+                        * event.values[0];
+                mGeomagnetic[1] = alpha * mGeomagnetic[1] + (1 - alpha)
+                        * event.values[1];
+                mGeomagnetic[2] = alpha * mGeomagnetic[2] + (1 - alpha)
+                        * event.values[2];
+
+                x.setText(String.format(Locale.ENGLISH, "x: %.2f", mGeomagnetic[0]));
+                y.setText(String.format(Locale.ENGLISH, "y: %.2f", mGeomagnetic[1]));
+                z.setText(String.format(Locale.ENGLISH, "z: %.2f", mGeomagnetic[2]));
+
+                tesla = Math.sqrt((mGeomagnetic[0] * mGeomagnetic[0]) + (mGeomagnetic[1] * mGeomagnetic[1]) + (mGeomagnetic[2] * mGeomagnetic[2]));
+
+                String text = String.format(Locale.ENGLISH, "%.2f μT", tesla);
+                reading.setText(text);
+            }
+
+            //rotation matrix
+            boolean success = SensorManager.getRotationMatrix(Rm, Im, mGravity,
+                    mGeomagnetic);
+            if (success) {
+                SensorManager.getOrientation(Rm, orientation);
+                azimuth = orientation[0];
+
+                accx.setText(String.format(Locale.ENGLISH, "azimuth: %.2f", orientation[0]));
+                accy.setText(String.format(Locale.ENGLISH, "pitch: %.2f", orientation[1]));
+                accz.setText(String.format(Locale.ENGLISH, "roll: %.2f", orientation[2]));
+                accreading.setText(String.format(Locale.ENGLISH, "%.2f", azimuth));
+            }
+
+            //send to db
+            if (counter <= 25) sendToDB(start);
+            counter++;
         }
-
-        double azimuth = event.values[0];
-        double pitch = event.values[1];
-        double roll = event.values[2];
-
-        x.setText(String.format(Locale.ENGLISH, "x: %.2f", azimuth));
-        y.setText(String.format(Locale.ENGLISH, "y: %.2f", pitch));
-        z.setText(String.format(Locale.ENGLISH, "z: %.2f", roll));
-
-
-        double tesla = Math.sqrt((azimuth * azimuth) + (pitch * pitch) + (roll * roll));
-        /*
-        if (runCounter < 1){
-            previousTesla = tesla;
-        }
-        runCounter++;
-        //and accelerometer has not moved (should help with accuracy)
-        if(tesla <= 1.5 * previousTesla){
-            String text = String.format(Locale.ENGLISH, "%.2f + μT", tesla);
-            reading.setText(text);
-        }
-        previousTesla = tesla;
-
-         */
-
-        String text = String.format(Locale.ENGLISH, "%.2f μT", tesla);
-        reading.setText(text);
-
-        //send to db
-        if(start == true){
-            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-            //creates new document (timestamp) with current data
-            db.collection(root + Collection)
-                    .document(timestamp.toString())
-                    .set(new Data(azimuth, pitch, roll, tesla));
-        }
-
-        if(calcStart == true) {
-            CollectionReference ref = db.collection(root);
-
-        }
-
-
     }
 
     @Override
@@ -199,6 +212,20 @@ public class Cartographer extends MainActivity implements SensorEventListener {
 
 
         return "";
+    }
+
+    private void sendToDB(Boolean start){
+        if(start){
+            String text = input.getText().toString();
+            Collection = text.isEmpty() ? "default" : text;
+
+            //send to db
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            //creates new document (timestamp) with current data
+            db.collection(root + Collection)
+                    .document(timestamp.toString())
+                    .set(new Data(mGeomagnetic, tesla, orientation));
+        }
     }
 
 }

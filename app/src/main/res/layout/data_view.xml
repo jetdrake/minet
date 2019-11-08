@@ -19,6 +19,7 @@
         android:fontFamily="sans-serif"
         android:textAppearance="?android:textAppearance"
         android:layout_marginStart="25dp"
+
         android:hint="x value"/>
     <TextView
         android:id="@+id/y_value"
@@ -46,14 +47,34 @@
         android:layout_marginStart="25dp"
         android:hint="tesla"/>
 
+
     <TextView
-        android:id="@+id/orient"
+        android:id="@+id/azimuth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textAppearance="?android:textAppearance"
+        android:layout_marginStart="25dp"
+        android:hint="azimuth"/>
+
+    <TextView
+        android:id="@+id/pitch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textAppearance="?android:textAppearance"
+        android:layout_marginStart="25dp"
+        android:hint="pitch"/>
+
+    <TextView
+        android:id="@+id/roll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
         android:textAppearance="?android:textAppearance"
         android:layout_marginStart="25dp"
         android:layout_marginBottom="10dp"
-        android:hint="orientation"/>
+        android:hint="roll"/>
+
 
 </LinearLayout>

@@ -27,7 +27,9 @@ public class DataAdapter extends ArrayAdapter<Data>{
         TextView y_value = convertView.findViewById(R.id.y_value);
         TextView z_value = convertView.findViewById(R.id.z_value);
         TextView tesla = convertView.findViewById(R.id.tesla);
-        TextView orient = convertView.findViewById(R.id.orient);
+        TextView azimuth = convertView.findViewById(R.id.azimuth);
+        TextView pitch = convertView.findViewById(R.id.pitch);
+        TextView roll = convertView.findViewById(R.id.roll);
 
 
         Data data = getItem(position);
@@ -37,7 +39,9 @@ public class DataAdapter extends ArrayAdapter<Data>{
         y_value.setText(String.format(Locale.ENGLISH, "y: %.2f", data.getY()));
         z_value.setText(String.format(Locale.ENGLISH, "z: %.2f", data.getZ()));
         tesla.setText(String.format(Locale.ENGLISH, "%.2f μT", data.getTesla()));
-        orient.setText(String.format(Locale.ENGLISH, "%.2f", data.getOrientation()));
+        azimuth.setText(String.format(Locale.ENGLISH, "Azimuth: %.2f", data.getAzimuth()));
+        pitch.setText(String.format(Locale.ENGLISH, "Pitch: %.2f", data.getPitch()));
+        roll.setText(String.format(Locale.ENGLISH, "Roll: %.2f", data.getRoll()));
 
         return convertView;
     }
