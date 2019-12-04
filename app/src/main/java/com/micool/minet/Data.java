@@ -6,7 +6,7 @@ public class Data {
     private float x, y, z;
     private float azimuth, pitch, roll;
     private double tesla;
-    private String ID = new Timestamp(System.currentTimeMillis()).toString();
+    private String id;
 
     public Data() {}
 
@@ -18,18 +18,22 @@ public class Data {
         this.azimuth = orientation[0];
         this.pitch = orientation[1];
         this.roll = orientation[2];
+        this.id = new Timestamp(System.currentTimeMillis()).toString();
     }
 
-    // no orientation data
-    public Data(float[] mag, double tesla) {
+    public Data(float[] mag, double tesla, float[] orientation, String room) {
         this.x = mag[0];
         this.y = mag[1];
         this.z = mag[2];
         this.tesla = tesla;
+        this.azimuth = orientation[0];
+        this.pitch = orientation[1];
+        this.roll = orientation[2];
+        this.id = room;
     }
 
     public String getID() {
-        return ID;
+        return id;
     }
 
     public float getX() {
@@ -59,4 +63,5 @@ public class Data {
     public float getRoll() {
         return roll;
     }
+
 }

@@ -1,22 +1,38 @@
 package com.micool.minet;
 
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.annotation.NonNull;
+
+import org.json.*;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.*;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Cartographer extends MainActivity implements SensorEventListener {
     //sensors
@@ -49,12 +65,26 @@ public class Cartographer extends MainActivity implements SensorEventListener {
     Button calc;
     Boolean calcStart = false;
     Button roomdb;
+    Button senddb;
     int counter = 0;
+
+    //Radio Buttons and Dynamic adding
+    TableLayout layout;
+    RadioGroup radioGroup;
+    Button enter;
+    TextView roomsText;
+    String [] rooms;
+    CheckBox useDB;
 
     //database
     FirebaseFirestore db;
-    String root = "/Localization/Apartment/";
+    String root = "/";
     String Collection;
+
+    //Data and timer
+    Timer timer = new Timer();
+    int activeRoomID;
+    ArrayList<String> dataJson = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +96,7 @@ public class Cartographer extends MainActivity implements SensorEventListener {
         magSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         gravSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        //get buttons and views
+        //get buttons and views for magnet and acc data
         input = findViewById(R.id.room);
         reading = findViewById(R.id.reading);
         x = findViewById(R.id.x);
@@ -78,27 +108,62 @@ public class Cartographer extends MainActivity implements SensorEventListener {
         accy = findViewById(R.id.accy);
         accz = findViewById(R.id.accz);
 
+        //radio button set up
+        layout = findViewById(R.id.rootContainer);
+        radioGroup = findViewById(R.id.radioGroup);
+        enter = findViewById(R.id.enter);
+        roomsText = findViewById(R.id.roomsText);
+
+        enter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(radioGroup != null && !roomsText.getText().toString().isEmpty()){
+                    //create radio buttons programmatically
+                    String rawText = roomsText.getText().toString();
+                    rooms = rawText.split(",");
+
+                    int counter = 0;
+                    for (String room : rooms) {
+                        RadioButton radioButton = new RadioButton(Cartographer.this);
+                        if (counter == 0) radioButton.setChecked(true);
+                        radioButton.setLayoutParams(new TableLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
+                        radioButton.setText(room);
+                        radioButton.setId(counter++);
+                        radioGroup.addView(radioButton);
+                    }
+
+                    radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(RadioGroup group, int checkedId) {
+                            activeRoomID = checkedId;
+                            //Toast.makeText(getApplicationContext(), rooms[activeRoomID], Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+
+                } else {
+                    Toast.makeText(Cartographer.this, "No RadioGroup or Rooms Provided", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+        useDB = findViewById(R.id.use);
+
         //controls the data sending
         startSending = findViewById(R.id.startButton);
         startSending.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    String text = input.getText().toString();
-                    Collection = text.isEmpty() ? "default" : text;
-
-                    Toast.makeText(Cartographer.this, "sending data to: " + Collection ,Toast.LENGTH_LONG).show();
+                    Toast.makeText(Cartographer.this, "reading data: " + Collection ,Toast.LENGTH_SHORT).show();
                     start = true;
                 } else {
-                    Toast.makeText(Cartographer.this, "stopping sending data" ,Toast.LENGTH_LONG).show();
+                    Toast.makeText(Cartographer.this, "stopping data" ,Toast.LENGTH_SHORT).show();
                     start = false;
                 }
             }
         });
-
-        //text
-        calc_room = findViewById(R.id.calc_room);
-        //button
-        calc = findViewById(R.id.calc);
 
         db = FirebaseFirestore.getInstance();
 
@@ -108,8 +173,22 @@ public class Cartographer extends MainActivity implements SensorEventListener {
             public void onClick(View view) {
                 Intent intent = new Intent(Cartographer.this, RoomDB.class);
                 String text = input.getText().toString();
+                boolean db = false;
+                //controls whether gets local data or
+                if (useDB.isChecked()) db = true;
+                intent.putExtra("useDB", db);
+                intent.putExtra("local", dataJson);
                 intent.putExtra("room", text.isEmpty() ? "default" : text);
                 view.getContext().startActivity(intent);
+            }
+        });
+
+        senddb = findViewById(R.id.send);
+        senddb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendToDB();
+                Toast.makeText(Cartographer.this, "Sent to: " + Collection, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -193,9 +272,9 @@ public class Cartographer extends MainActivity implements SensorEventListener {
                 accreading.setText(String.format(Locale.ENGLISH, "%.2f", azimuth));
             }
 
-            //send to db
-            if (counter <= 25) sendToDB(start);
-            counter++;
+            //begin collection or send to database
+            //todo: add database control, so that this can be sent to firebase
+            createData(start);
         }
     }
 
@@ -206,25 +285,27 @@ public class Cartographer extends MainActivity implements SensorEventListener {
 
     //https://stackoverflow.com/questions/50035752/how-to-get-list-of-documents-from-a-collection-in-firestore-android
 
-    private String calcRoom(){
+    private void sendToDB() {
+        String text = input.getText().toString();
+        Collection = text.isEmpty() ? "default" : text;
 
-
-
-
-        return "";
-    }
-
-    private void sendToDB(Boolean start){
-        if(start){
-            String text = input.getText().toString();
-            Collection = text.isEmpty() ? "default" : text;
-
-            //send to db
+        //send to db with Timestamp
+        for (String data : dataJson) {
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-            //creates new document (timestamp) with current data
             db.collection(root + Collection)
                     .document(timestamp.toString())
-                    .set(new Data(mGeomagnetic, tesla, orientation));
+                    .set(tools.JSONToData(data));
+        }
+
+    }
+
+
+
+    private void createData(boolean start) {
+        if(start == true){
+            String data = tools.dataToJSON(new Data(mGeomagnetic, tesla, orientation, rooms[activeRoomID]));
+            Log.d("data", data);
+            dataJson.add(data);
         }
     }
 

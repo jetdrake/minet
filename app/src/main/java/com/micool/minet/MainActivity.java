@@ -22,6 +22,16 @@ public class MainActivity extends AppCompatActivity {
                 view.getContext().startActivity(intent);
             }
         });
+
+        Button mqtt = findViewById(R.id.mqtt);
+        mqtt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, MqttActivity.class);
+                view.getContext().startActivity(intent);
+            }
+        });
+
     }
 
 }

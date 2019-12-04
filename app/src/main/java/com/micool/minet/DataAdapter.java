@@ -22,7 +22,7 @@ public class DataAdapter extends ArrayAdapter<Data>{
             convertView =  ((Activity)getContext()).getLayoutInflater().inflate(R.layout.data_view, parent,false);
         }
 
-        TextView ID = convertView.findViewById(R.id.time_value);
+        TextView ID = convertView.findViewById(R.id.ID);
         TextView x_value = convertView.findViewById(R.id.x_value);
         TextView y_value = convertView.findViewById(R.id.y_value);
         TextView z_value = convertView.findViewById(R.id.z_value);
@@ -34,7 +34,7 @@ public class DataAdapter extends ArrayAdapter<Data>{
 
         Data data = getItem(position);
 
-        ID.setText(data.getID());
+        ID.setText(data != null ? data.getID().toString() : "Id not found");
         x_value.setText(String.format(Locale.ENGLISH, "x: %.2f", data.getX()));
         y_value.setText(String.format(Locale.ENGLISH, "y: %.2f", data.getY()));
         z_value.setText(String.format(Locale.ENGLISH, "z: %.2f", data.getZ()));
