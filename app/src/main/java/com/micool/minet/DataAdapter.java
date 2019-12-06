@@ -2,7 +2,6 @@ package com.micool.minet;
 
 import android.app.Activity;
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -19,7 +18,7 @@ public class DataAdapter extends ArrayAdapter<Data>{
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
         if(convertView == null){
-            convertView =  ((Activity)getContext()).getLayoutInflater().inflate(R.layout.data_view, parent,false);
+            convertView =  ((Activity)getContext()).getLayoutInflater().inflate(R.layout.view_data_view, parent,false);
         }
 
         TextView ID = convertView.findViewById(R.id.ID);

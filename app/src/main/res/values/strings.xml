@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Minet</string>
     <string name="home_cart">Cartographer</string>
-    <string name="home_mqtt">MQTT</string>
+    <string name="home_mqtt">Navigation</string>
     <string name="cart_start">Start Reading</string>
     <string name="hello">Welcome to Minet</string>
     <string name="cart_calc">calc</string>

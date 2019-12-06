@@ -36,6 +36,10 @@ public class Data {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public float getX() {
         return x;
     }

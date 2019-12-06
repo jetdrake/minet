@@ -2,7 +2,6 @@ package com.micool.minet;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.JsonReader;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -15,13 +14,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.gson.JsonParser;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.json.*;
-
-import io.grpc.okhttp.internal.framed.Header;
 
 public class RoomDB extends MainActivity {
 
@@ -36,7 +31,7 @@ public class RoomDB extends MainActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.roomdb);
+        setContentView(R.layout.activity_roomdb);
 
         header = findViewById(R.id.room_header);
 

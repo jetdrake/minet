@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:id="@+id/sensorContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TableRow>
+
+        <EditText
+            android:paddingTop="50dp"
+            android:id="@+id/roomsText"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:text="bed, bath, beyond"
+            android:hint="enter rooms you will be using"
+            android:inputType="textPersonName" />
+
+
+        <Button
+            android:id="@+id/enter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="enter" />
+
+    </TableRow>
+
+    <ToggleButton
+        android:id="@+id/startButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textOff="Start"
+        android:textOn="Stop" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp">
+
+    </RadioGroup>
+
+    <TableRow>
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/use"
+            ></androidx.appcompat.widget.AppCompatCheckBox>
+
+        <EditText
+            android:paddingTop="50dp"
+            android:id="@+id/dbtext"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="enter db"
+            android:inputType="textPersonName" />
+
+        <Button
+            android:id="@+id/send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send DB" />
+
+        <Button
+            android:id="@+id/db"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get DB" />
+
+    </TableRow>
+
+
+
+</TableLayout>

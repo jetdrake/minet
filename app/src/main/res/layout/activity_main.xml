@@ -43,5 +43,4 @@
             android:text="@string/home_mqtt" />
     </TableRow>
 
-
 </TableLayout>
