@@ -47,7 +47,7 @@ public class RoomDB extends MainActivity {
                 List<Data> dataArrayList = new ArrayList<>();
 
                 for ( String data : local) {
-                    dataArrayList.add(tools.JSONToData(data));
+                    dataArrayList.add(Tools.JSONToData(data));
                 }
 
                 ListView dataList = findViewById(R.id.dataList);

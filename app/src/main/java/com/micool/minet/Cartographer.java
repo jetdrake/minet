@@ -159,13 +159,14 @@ public class Cartographer extends MainActivity implements Sensors.SensorsListene
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             db.collection("/" + Collection)
                     .document(timestamp.toString())
-                    .set(tools.JSONToData(data));
+                    .set(Tools.JSONToData(data));
         }
 
     }
 
+
     @Override
-    public void onInputSensorsSent(Data data) {
-        //this is the interface.. Currently useless method
+    public void onInputSensorsSent(String data) {
+
     }
 }

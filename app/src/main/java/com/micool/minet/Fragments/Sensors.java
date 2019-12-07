@@ -18,7 +18,7 @@ import androidx.fragment.app.Fragment;
 
 import com.micool.minet.Data;
 import com.micool.minet.R;
-import com.micool.minet.tools;
+import com.micool.minet.Tools;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -30,7 +30,7 @@ public class Sensors extends Fragment implements SensorEventListener {
     private SensorsListener listener;
 
     public interface SensorsListener {
-        void onInputSensorsSent(Data data);
+        void onInputSensorsSent(String data);
     }
 
     //sensors
@@ -82,8 +82,6 @@ public class Sensors extends Fragment implements SensorEventListener {
         accx = view.findViewById(R.id.accx);
         accy = view.findViewById(R.id.accy);
         accz = view.findViewById(R.id.accz);
-
-        listener.onInputSensorsSent(currentData);
 
         return view;
     }
@@ -182,6 +180,9 @@ public class Sensors extends Fragment implements SensorEventListener {
 
             currentData = new Data(mGeomagnetic, tesla, orientation);
             createData(start);
+
+            listener.onInputSensorsSent(getCurrentDataJSON());
+
         }
     }
 
@@ -192,14 +193,14 @@ public class Sensors extends Fragment implements SensorEventListener {
 
     private void createData(boolean start) {
         if(start == true){
-            String data = tools.dataToJSON(new Data(mGeomagnetic, tesla, orientation, rooms[activeRoomID]));
+            String data = Tools.dataToJSON(new Data(mGeomagnetic, tesla, orientation, rooms[activeRoomID]));
             Log.d("data", data);
             dataJson.add(data);
         }
     }
 
     public String getCurrentDataJSON() {
-        return tools.dataToJSON(currentData);
+        return Tools.dataToJSON(currentData);
     }
 
     public boolean isStart() {

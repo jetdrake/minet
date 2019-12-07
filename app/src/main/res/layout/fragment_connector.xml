@@ -20,13 +20,13 @@
     </TableRow>
 
     <TableRow>
-        <ToggleButton
+        <Button
             android:id="@+id/connect"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textOn="Disconnect"
-            android:textOff="Connect"
+            android:enabled="false"
+            android:text="Connect"
             android:textSize="20dp"/>
 
         <androidx.appcompat.widget.AppCompatTextView

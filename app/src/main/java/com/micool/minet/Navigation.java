@@ -1,7 +1,10 @@
 package com.micool.minet;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,7 +16,7 @@ public class Navigation extends AppCompatActivity
 
     Sensors sensors;
     Connector connector;
-    TextView connection;
+    CheckBox useLive;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,10 +31,12 @@ public class Navigation extends AppCompatActivity
                 .replace(R.id.navSensorContainer, sensors)
                 .commit();
 
+        useLive = findViewById(R.id.useLive);
     }
 
     @Override
-    public void onInputSensorsSent(Data data) {
-
+    public void onInputSensorsSent(String data) {
+        if(useLive.isChecked()) connector.easyPublish(data, "realtime");
+        //Log.d("realtime", data);
     }
 }

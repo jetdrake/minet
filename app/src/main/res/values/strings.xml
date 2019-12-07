@@ -5,5 +5,5 @@
     <string name="cart_start">Start Reading</string>
     <string name="hello">Welcome to Minet</string>
     <string name="cart_calc">calc</string>
-    <string name="broker">tcp://2600:1702:37b1:680:b045:c3df:95d8:a4a:1883</string>
+    <string name="broker">IP Address of broker</string>
 </resources>

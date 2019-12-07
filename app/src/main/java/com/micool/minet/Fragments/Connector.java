@@ -7,16 +7,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.micool.minet.R;
+import com.micool.minet.Tools;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
@@ -35,11 +40,12 @@ public class Connector extends Fragment {
 
     private static final String TAG = "PahoMqttClient";
     public MqttAndroidClient client;
-
+    public String broker;
     private ConnectorListener listener;
     boolean connected = false;
+    TextView brokerAddressView;
     TextView connection;
-    ToggleButton connect;
+    Button connect;
 
     public interface ConnectorListener{
 
@@ -48,28 +54,52 @@ public class Connector extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
         View view  = inflater.inflate(R.layout.fragment_connector, container, false);
 
+        //bad naming -
+        //  connect = button, connected = boolean, connection = text representation of connected
+        GetIPFromFirebase();
+        brokerAddressView = view.findViewById(R.id.brokerAddress);
         connection = view.findViewById(R.id.connection);
-
         connect = view.findViewById(R.id.connect);
-        connect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    String clientId = MqttClient.generateClientId();
-                    getMqttClient(getActivity(), getString(R.string.broker), clientId, "micool", "sophie");
-                    connection.setTextColor(Color.GREEN);
-                } else {
+        connect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(connected) {
                     try {
                         disconnect(client);
-                        connection.setTextColor(Color.RED);
                     } catch (MqttException e) {
                         e.printStackTrace();
                         Toast.makeText(getActivity(), "Error disconnecting", Toast.LENGTH_SHORT).show();
                     }
+                } else {
+                    String clientId = MqttClient.generateClientId();
+                    client = getMqttClient(getActivity(), broker, clientId);
+                    //Toast.makeText(getActivity(), broker, Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
         return view;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        try {
+            disconnect(client);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(connected){
+            String clientId = MqttClient.generateClientId();
+            client = getMqttClient(getActivity(), broker, clientId);
+        }
+
     }
 
     public MqttAndroidClient getMqttClient(Context context, String brokerUrl, String clientId, String clientUn, String clientPw) {
@@ -83,18 +113,43 @@ public class Connector extends Fragment {
                 myMqttcnxoptions.setPassword(clientPw.toCharArray());
             }
             IMqttToken token = client.connect(myMqttcnxoptions);
-
-            //IMqttToken token = mqttAndroidClient.connect(getMqttConnectionOption(clientUn,clientPw));
             token.setActionCallback(new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     client.setBufferOpts(getDisconnectedBufferOptions());
                     Log.d(TAG, "Success");
+                    onConnect();
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     Log.d(TAG, "Failure " + exception.toString());
+                    onDisconnect();
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+
+        return client;
+    }
+
+    public MqttAndroidClient getMqttClient(Context context, String brokerUrl, String clientId) {
+        client = new MqttAndroidClient(context, brokerUrl, clientId);
+        try {
+            IMqttToken token = client.connect();
+            token.setActionCallback(new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    client.setBufferOpts(getDisconnectedBufferOptions());
+                    Log.d(TAG, "Success");
+                    onConnect();
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    Log.d(TAG, "Failure " + exception.toString());
+                    onDisconnect();
                 }
             });
         } catch (MqttException e) {
@@ -110,11 +165,13 @@ public class Connector extends Fragment {
             @Override
             public void onSuccess(IMqttToken iMqttToken) {
                 Log.d(TAG, "Successfully disconnected");
+                onDisconnect();
             }
 
             @Override
             public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
                 Log.d(TAG, "Failed to disconnected " + throwable.toString());
+                onConnect();
             }
         });
     }
@@ -155,6 +212,18 @@ public class Connector extends Fragment {
         client.publish(topic, message);
     }
 
+    public void easyPublish(@NonNull String msg, @NonNull String topic){
+        try {
+            publishMessage(client, msg, 0, topic);
+        } catch (MqttException e) {
+            e.printStackTrace();
+            Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public void subscribe(@NonNull MqttAndroidClient client, @NonNull final String topic, int qos) throws MqttException {
         IMqttToken token = client.subscribe(topic, qos);
         token.setActionCallback(new IMqttActionListener() {
@@ -188,6 +257,33 @@ public class Connector extends Fragment {
         });
     }
 
+    public void initBroker (String ip){
+        broker = "tcp://" + ip + ":1883";
+        connect.setEnabled(true);
+        brokerAddressView.setText(broker);
+    }
+
+    public void GetIPFromFirebase() {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("ip").getRef();
+        ValueEventListener ipListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // IP address
+                String ip = dataSnapshot.getValue().toString();
+                initBroker(ip);
+                // ...
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting IP failed, log a message
+                Log.w("ip", "loadPost:onCancelled", databaseError.toException());
+                // ...
+            }
+        };
+        ref.addListenerForSingleValueEvent(ipListener);
+    }
+
 
     @Override
     public void onAttach(Context context){
@@ -207,5 +303,17 @@ public class Connector extends Fragment {
 
     public boolean isConnected() {
         return connected;
+    }
+
+    public void onConnect () {
+        connection.setTextColor(Color.GREEN);
+        connect.setText("Disconnect");
+        connected = true;
+    }
+
+    public void onDisconnect () {
+        connection.setTextColor(Color.RED);
+        connect.setText("Connect");
+        connected = false;
     }
 }
