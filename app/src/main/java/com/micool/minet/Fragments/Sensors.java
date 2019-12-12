@@ -10,6 +10,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,8 +20,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.micool.minet.Data;
+import com.micool.minet.Helpers.SOTWFormatter;
 import com.micool.minet.R;
-import com.micool.minet.Tools;
+import com.micool.minet.Helpers.Tools;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -37,6 +41,7 @@ public class Sensors extends Fragment implements SensorEventListener {
     private static SensorManager sensorManager;
     private static Sensor magSensor;
     private static Sensor gravSensor;
+    //private static Sensor stepSensor;
 
     //value storage
     private float[] mGravity = new float[3];
@@ -45,7 +50,10 @@ public class Sensors extends Fragment implements SensorEventListener {
     private float[] Im = new float[9];
     float orientation[] = new float[3];
     float azimuth;
+    float lazimuth;
+    String direction;
     double tesla;
+    int stepCount = 1;
 
     TextView reading;
     TextView x;
@@ -55,12 +63,20 @@ public class Sensors extends Fragment implements SensorEventListener {
     TextView accx;
     TextView accy;
     TextView accz;
+    Button stepBtn;
+
+    RadioGroup dataSelect;
+    int activeDataID = 0;
 
     String [] rooms;
     int activeRoomID;
-    ArrayList<String> dataJson = new ArrayList<String>();
     boolean start = false;
     Data currentData;
+    //persistent storage
+    ArrayList<String> dataJson = new ArrayList<String>();
+    //temp storage
+    ArrayList<Data> tempData = new ArrayList<Data>();
+
 
 
     @Nullable
@@ -71,6 +87,7 @@ public class Sensors extends Fragment implements SensorEventListener {
         sensorManager = (SensorManager)this.getActivity().getSystemService(SENSOR_SERVICE);
         magSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         gravSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        //stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
 
         //get buttons and views for magnet and acc data
         reading = view.findViewById(R.id.reading);
@@ -82,6 +99,25 @@ public class Sensors extends Fragment implements SensorEventListener {
         accx = view.findViewById(R.id.accx);
         accy = view.findViewById(R.id.accy);
         accz = view.findViewById(R.id.accz);
+
+        stepBtn = view.findViewById(R.id.stepBtn);
+        dataSelect = view.findViewById(R.id.radioDataTypes);
+
+        dataSelect.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                activeDataID = checkedId;
+            }
+        });
+
+        stepBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dataJson.add(Tools.dataToJSON(averageTempData()));
+                tempData.clear();
+                stepBtn.setText(""+ stepCount++);
+            }
+        });
 
         return view;
     }
@@ -114,8 +150,17 @@ public class Sensors extends Fragment implements SensorEventListener {
         if(gravSensor != null){
             sensorManager.registerListener(this, gravSensor, SensorManager.SENSOR_DELAY_GAME);
         } else {
-            Toast.makeText(this.getActivity(), "Magnetic Field Sensor Not supported", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.getActivity(), "Accelerometer Sensor Not supported", Toast.LENGTH_SHORT).show();
         }
+
+        /*
+        if(stepSensor != null){
+            sensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_GAME);
+        } else {
+            Toast.makeText(this.getActivity(), "Step Sensor Not supported", Toast.LENGTH_SHORT).show();
+        }
+
+         */
 
     }
 
@@ -143,7 +188,6 @@ public class Sensors extends Fragment implements SensorEventListener {
                 // mGravity = event.values;
 
             }
-
 
             if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
 
@@ -175,12 +219,17 @@ public class Sensors extends Fragment implements SensorEventListener {
                 accx.setText(String.format(Locale.ENGLISH, "azimuth: %.2f", orientation[0]));
                 accy.setText(String.format(Locale.ENGLISH, "pitch: %.2f", orientation[1]));
                 accz.setText(String.format(Locale.ENGLISH, "roll: %.2f", orientation[2]));
-                accreading.setText(String.format(Locale.ENGLISH, "%.2f", azimuth));
+
+                float lazimuth = (float) Math.toDegrees(azimuth);
+                lazimuth = (lazimuth + 360) % 360;
+                SOTWFormatter formatter = new SOTWFormatter();
+
+                direction = formatter.formatNum(lazimuth);
+
+                accreading.setText(formatter.format(lazimuth));
             }
 
-            currentData = new Data(mGeomagnetic, tesla, orientation);
-            createData(start);
-
+            currentData = createCurrentData(activeDataID);
             listener.onInputSensorsSent(getCurrentDataJSON());
 
         }
@@ -191,12 +240,62 @@ public class Sensors extends Fragment implements SensorEventListener {
         Toast.makeText(getActivity(), "wow that's bad", Toast.LENGTH_SHORT);
     }
 
-    private void createData(boolean start) {
+    private void createData(boolean start, int dataID) {
         if(start == true){
-            String data = Tools.dataToJSON(new Data(mGeomagnetic, tesla, orientation, rooms[activeRoomID]));
+            String data = Tools.dataToJSON(currentData);
             Log.d("data", data);
             dataJson.add(data);
         }
+    }
+
+    private Data createCurrentData (int dataID) {
+        Data data = null;
+        switch (dataID){
+            case 0:
+                data = new Data(mGeomagnetic, tesla, orientation, rooms != null ? rooms[activeRoomID] : "Room not set", direction);
+                break;
+
+            case 1:
+                data = new Data(mGeomagnetic, tesla, orientation, rooms != null ? rooms[activeRoomID] : "Room not set");
+                break;
+
+            case 2:
+                data = new Data(tesla, rooms != null ? rooms[activeRoomID] : "Room not set", direction);
+                break;
+
+            default:
+                break;
+        }
+
+        if(start) tempData.add(data);
+
+        return data;
+    }
+
+    private Data averageTempData (){
+        float x = 0, y = 0, z = 0, azimuth = 0, pitch = 0, roll = 0;
+        double tesla = 0;
+        for (Data data : tempData) {
+            x += data.getX();
+            y += data.getY();
+            z += data.getZ();
+            azimuth += data.getAzimuth();
+            pitch += data.getPitch();
+            roll += data.getRoll();
+            tesla += data.getTesla();
+        }
+
+        x /= tempData.size();
+        y /= tempData.size();
+        z /= tempData.size();
+        azimuth /= tempData.size();
+        pitch /= tempData.size();
+        roll /= tempData.size();
+        tesla /= tempData.size();
+
+
+        return new Data(x,y,z,azimuth,pitch,roll,tesla,tempData.get(0).getID(), tempData.get(0).getDirection());
+
     }
 
     public String getCurrentDataJSON() {
@@ -234,6 +333,5 @@ public class Sensors extends Fragment implements SensorEventListener {
     public void setDataJson(ArrayList<String> dataJson) {
         this.dataJson = dataJson;
     }
-
 
 }

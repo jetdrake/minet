@@ -1,4 +1,4 @@
-package com.micool.minet;
+package com.micool.minet.Helpers;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,6 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import com.micool.minet.Data;
+import com.micool.minet.R;
 
 import java.util.List;
 import java.util.Locale;
@@ -29,6 +32,7 @@ public class DataAdapter extends ArrayAdapter<Data>{
         TextView azimuth = convertView.findViewById(R.id.azimuth);
         TextView pitch = convertView.findViewById(R.id.pitch);
         TextView roll = convertView.findViewById(R.id.roll);
+        TextView direction = convertView.findViewById(R.id.direction);
 
 
         Data data = getItem(position);
@@ -41,6 +45,7 @@ public class DataAdapter extends ArrayAdapter<Data>{
         azimuth.setText(String.format(Locale.ENGLISH, "Azimuth: %.2f", data.getAzimuth()));
         pitch.setText(String.format(Locale.ENGLISH, "Pitch: %.2f", data.getPitch()));
         roll.setText(String.format(Locale.ENGLISH, "Roll: %.2f", data.getRoll()));
+        direction.setText(data.getDirection());
 
         return convertView;
     }

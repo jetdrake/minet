@@ -110,5 +110,46 @@
 
     </TableRow>
 
+    <TableRow>
+
+        <RadioGroup
+            android:orientation="horizontal"
+            android:id="@+id/radioDataTypes"
+            android:layout_weight="1">
+
+            <RadioButton
+                android:id="@+id/dataAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="All"
+                android:checked="true"
+                />
+            <RadioButton
+                android:id="@+id/dataReduced"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="Reduced"
+                android:layout_weight="1"
+                />
+            <RadioButton
+                android:id="@+id/dataNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Normal"
+                />
+
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/stepBtn"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:text="Step"/>
+
+
+    </TableRow>
 
 </TableLayout>
