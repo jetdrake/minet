@@ -14,11 +14,15 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.micool.minet.DataClasses.Data;
+import com.micool.minet.DataClasses.MetaData;
 import com.micool.minet.Helpers.DataAdapter;
 import com.micool.minet.Helpers.Tools;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RoomDB extends MainActivity {
 
@@ -46,11 +50,11 @@ public class RoomDB extends MainActivity {
 
                 if (!local.isEmpty()) Toast.makeText(this, "local", Toast.LENGTH_LONG).show();
 
-                List<Data> dataArrayList = new ArrayList<>();
+                List<Map<String, Object>> dataArrayList = new ArrayList<>();
 
-                for ( String data : local) {
-                    dataArrayList.add(Tools.JSONToData(data));
-                }
+//                for ( String data : local) {
+//                    dataArrayList.add(Tools.JSONToData(data));
+//                }
 
                 ListView dataList = findViewById(R.id.dataList);
                 DataAdapter dataAdapter = new DataAdapter(RoomDB.this, dataArrayList);
@@ -73,10 +77,10 @@ public class RoomDB extends MainActivity {
                 db.collection(root).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        List<Data> dataArrayList = new ArrayList<>();
+                        List<Map<String, Object>> dataArrayList = new ArrayList<>();
                         if(task.isSuccessful()){
                             for(QueryDocumentSnapshot document : task.getResult()) {
-                                Data data = document.toObject(Data.class);
+                                Map<String, Object> data = document.getData();
                                 dataArrayList.add(data);
                             }
                             ListView dataList = findViewById(R.id.dataList);

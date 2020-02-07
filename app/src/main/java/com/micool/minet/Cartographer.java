@@ -2,6 +2,7 @@ package com.micool.minet;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -14,18 +15,33 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.micool.minet.DataClasses.Data;
+import com.micool.minet.DataClasses.MetaData;
 import com.micool.minet.Fragments.Sensors;
 import com.micool.minet.Helpers.Tools;
 
+import java.sql.Array;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 
 public class Cartographer extends MainActivity implements Sensors.SensorsListener {
     ToggleButton startSending;
     TextView input;
     Button roomdb;
     Button senddb;
+
+    int stepCount = 1;
+    Button stepBtn;
 
     //Radio Buttons and Dynamic adding
     TableLayout layout;
@@ -51,6 +67,19 @@ public class Cartographer extends MainActivity implements Sensors.SensorsListene
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.sensorContainer, sensors)
                 .commit();
+
+        //step button
+        stepBtn = findViewById(R.id.stepBtn);
+        stepBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                needs to call method that partitions the data into steps
+                sensors.onStep();
+//                sensors..add(Tools.dataToJSON(averageTempData()));
+//                tempData.clear();
+                stepBtn.setText(""+ stepCount++);
+            }
+        });
 
         //radio button set up
         layout = findViewById(R.id.rootContainer);
@@ -105,6 +134,7 @@ public class Cartographer extends MainActivity implements Sensors.SensorsListene
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     Toast.makeText(Cartographer.this, "reading data" ,Toast.LENGTH_SHORT).show();
+                    if (rooms == null && !enter.getText().toString().isEmpty()) enter.performClick();
                     sensors.setStart(true);
                 } else {
                     Toast.makeText(Cartographer.this, "stopping data" ,Toast.LENGTH_SHORT).show();
@@ -123,7 +153,7 @@ public class Cartographer extends MainActivity implements Sensors.SensorsListene
                 String text = input.getText().toString();
                 //controls whether gets local data or
                 intent.putExtra("useDB", useDB.isChecked());
-                intent.putExtra("local", sensors.getDataJson());
+                intent.putExtra("local", sensors.getDataPackJson());
                 intent.putExtra("room", text.isEmpty() ? "default" : text);
                 view.getContext().startActivity(intent);
             }
@@ -134,7 +164,6 @@ public class Cartographer extends MainActivity implements Sensors.SensorsListene
             @Override
             public void onClick(View view) {
                 sendToDB();
-                Toast.makeText(Cartographer.this, "Sent to: " + Collection, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -152,16 +181,43 @@ public class Cartographer extends MainActivity implements Sensors.SensorsListene
     }
 
     private void sendToDB() {
+        startSending.setChecked(false);
         String text = input.getText().toString();
         Collection = text.isEmpty() ? "default" : text;
-        ArrayList<String> dataJson = sensors.getDataJson();
+
+        //String json = sensors.getDataPackJson();
+
         //send to db with Timestamp
-        for (String data : dataJson) {
+        LinkedHashMap<MetaData, ArrayList<Data>> map = sensors.getDataPack();
+
+        Iterator it = map.entrySet().iterator();
+
+        while(it.hasNext()){
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            Map.Entry pair = (Map.Entry)it.next();
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("meta", pair.getKey());
+            data.put("data", pair.getValue());
+
             db.collection("/" + Collection)
                     .document(timestamp.toString())
-                    .set(Tools.JSONToData(data));
+                    .set(data)
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("document", "Error adding document", e);
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(Cartographer.this, "Sent to: " + Collection, Toast.LENGTH_SHORT).show();
+                }
+            });
+
+
         }
+
 
     }
 

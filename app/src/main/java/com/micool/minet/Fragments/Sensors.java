@@ -1,30 +1,37 @@
 package com.micool.minet.Fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.RadioGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.micool.minet.Data;
+import com.google.gson.Gson;
+import com.micool.minet.DataClasses.Data;
+import com.micool.minet.DataClasses.MetaData;
 import com.micool.minet.Helpers.SOTWFormatter;
 import com.micool.minet.R;
 import com.micool.minet.Helpers.Tools;
 
+import java.lang.reflect.Array;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 
 import static android.content.Context.SENSOR_SERVICE;
@@ -50,10 +57,10 @@ public class Sensors extends Fragment implements SensorEventListener {
     private float[] Im = new float[9];
     float orientation[] = new float[3];
     float azimuth;
-    float lazimuth;
     String direction;
     double tesla;
-    int stepCount = 1;
+
+    String TAG = "sensors";
 
     TextView reading;
     TextView x;
@@ -63,19 +70,24 @@ public class Sensors extends Fragment implements SensorEventListener {
     TextView accx;
     TextView accy;
     TextView accz;
-    Button stepBtn;
+    EditText delayText;
+    Button delayBtn;
 
-    RadioGroup dataSelect;
-    int activeDataID = 0;
+    boolean checkSensor = false;
+    float delay = 100f;
+    float stepId = 0.0f;
 
     String [] rooms;
     int activeRoomID;
     boolean start = false;
     Data currentData;
+    MetaData currentMeta;
     //persistent storage
     ArrayList<String> dataJson = new ArrayList<String>();
     //temp storage
     ArrayList<Data> tempData = new ArrayList<Data>();
+
+    LinkedHashMap<MetaData, ArrayList<Data>> dataPack = new LinkedHashMap<MetaData, ArrayList<Data>>();
 
 
 
@@ -100,24 +112,18 @@ public class Sensors extends Fragment implements SensorEventListener {
         accy = view.findViewById(R.id.accy);
         accz = view.findViewById(R.id.accz);
 
-        stepBtn = view.findViewById(R.id.stepBtn);
-        dataSelect = view.findViewById(R.id.radioDataTypes);
+        delayText = view.findViewById(R.id.delayText);
+        delayBtn = view.findViewById(R.id.delayBtn);
 
-        dataSelect.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                activeDataID = checkedId;
-            }
-        });
-
-        stepBtn.setOnClickListener(new View.OnClickListener() {
+        delayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dataJson.add(Tools.dataToJSON(averageTempData()));
-                tempData.clear();
-                stepBtn.setText(""+ stepCount++);
+                //if user has submitted a value then the delay will be set
+                if(!delayText.getText().toString().isEmpty()) delay = Float.parseFloat(delayText.getText().toString());
+                refreshActivity();
             }
         });
+
 
         return view;
     }
@@ -141,14 +147,25 @@ public class Sensors extends Fragment implements SensorEventListener {
     @Override
     public void onResume() {
         super.onResume();
+
+        int delayMS = SensorManager.SENSOR_DELAY_GAME;
+
+        Intent intent = getActivity().getIntent();
+        delay = intent.getFloatExtra("delay", -1.0f);
+
+        if(delay != -1.0f){
+            delayMS = (int)(delay * 1000);
+            delayText.setText(""+delay);
+        }
+
         if(magSensor != null){
-            sensorManager.registerListener(this, magSensor, SensorManager.SENSOR_DELAY_GAME);
+            sensorManager.registerListener(this, magSensor, delayMS);
         } else {
             Toast.makeText(this.getActivity(), "Magnetic Field Sensor Not supported", Toast.LENGTH_SHORT).show();
         }
 
         if(gravSensor != null){
-            sensorManager.registerListener(this, gravSensor, SensorManager.SENSOR_DELAY_GAME);
+            sensorManager.registerListener(this, gravSensor, delayMS);
         } else {
             Toast.makeText(this.getActivity(), "Accelerometer Sensor Not supported", Toast.LENGTH_SHORT).show();
         }
@@ -164,6 +181,28 @@ public class Sensors extends Fragment implements SensorEventListener {
 
     }
 
+
+    public void setSensorDelayInSeconds(int time){
+        time *= 1000000;
+        try {
+            //unregister the old listeners
+            sensorManager.unregisterListener(this, gravSensor);
+            sensorManager.unregisterListener(this, magSensor);
+            //register again with new time
+            sensorManager.registerListener(this, gravSensor, time, time);
+            sensorManager.registerListener(this, magSensor, time, time);
+        } catch (Exception e) {
+            Log.d(TAG, e.getStackTrace().toString());
+        }
+    }
+
+    public void refreshActivity() {
+        Intent intent = getActivity().getIntent();
+        intent.putExtra("delay", delay);
+        getActivity().finish();
+        startActivity(intent);
+    }
+
     @Override
     public void onPause() {
         super.onPause();
@@ -175,7 +214,7 @@ public class Sensors extends Fragment implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         final float alpha = 0.97f;
 
-        synchronized (this) {
+        //synchronized (this) {
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 
                 mGravity[0] = alpha * mGravity[0] + (1 - alpha)
@@ -229,10 +268,14 @@ public class Sensors extends Fragment implements SensorEventListener {
                 accreading.setText(formatter.format(lazimuth));
             }
 
-            currentData = createCurrentData(activeDataID);
+
+            //timed code
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            Log.d(TAG, "reading at: " + timestamp.toString());
+            currentData = createCurrentData();
             listener.onInputSensorsSent(getCurrentDataJSON());
 
-        }
+//      }
     }
 
     @Override
@@ -248,24 +291,9 @@ public class Sensors extends Fragment implements SensorEventListener {
         }
     }
 
-    private Data createCurrentData (int dataID) {
-        Data data = null;
-        switch (dataID){
-            case 0:
-                data = new Data(mGeomagnetic, tesla, orientation, rooms != null ? rooms[activeRoomID] : "Room not set", direction);
-                break;
-
-            case 1:
-                data = new Data(mGeomagnetic, tesla, orientation, rooms != null ? rooms[activeRoomID] : "Room not set");
-                break;
-
-            case 2:
-                data = new Data(tesla, rooms != null ? rooms[activeRoomID] : "Room not set", direction);
-                break;
-
-            default:
-                break;
-        }
+    private Data createCurrentData () {
+        if (currentMeta == null && rooms != null) currentMeta = new MetaData(direction, ""+ ++stepId ,rooms[activeRoomID]);
+        Data data = new Data(mGeomagnetic, tesla, orientation);
 
         if(start) tempData.add(data);
 
@@ -294,12 +322,17 @@ public class Sensors extends Fragment implements SensorEventListener {
         tesla /= tempData.size();
 
 
-        return new Data(x,y,z,azimuth,pitch,roll,tesla,tempData.get(0).getID(), tempData.get(0).getDirection());
+        return new Data(x,y,z,azimuth,pitch,roll,tesla);
 
     }
 
     public String getCurrentDataJSON() {
         return Tools.dataToJSON(currentData);
+    }
+
+    public void onStep(){
+        dataPack.put(currentMeta, tempData);
+        currentMeta = null;
     }
 
     public boolean isStart() {
@@ -326,12 +359,21 @@ public class Sensors extends Fragment implements SensorEventListener {
         this.activeRoomID = activeRoomID;
     }
 
-    public ArrayList<String> getDataJson() {
-        return dataJson;
+    public String getDataPackJson() {
+        Gson gson = new Gson();
+        String json = gson.toJson(dataPack);
+        Log.d("json", "getDataPackJson: "+ json);
+        return json;
+    }
+
+    public LinkedHashMap<MetaData, ArrayList<Data>> getDataPack(){
+        Log.d("dataPack", "getDataPack: "+ dataPack);
+        return dataPack;
     }
 
     public void setDataJson(ArrayList<String> dataJson) {
         this.dataJson = dataJson;
     }
+
 
 }

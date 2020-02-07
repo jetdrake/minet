@@ -75,15 +75,6 @@
         android:layout_marginStart="25dp"
         android:hint="roll"/>
 
-    <TextView
-        android:id="@+id/direction"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
-        android:textAppearance="?android:textAppearance"
-        android:layout_marginStart="25dp"
-        android:layout_marginBottom="10dp"
-        android:hint="direction"/>
 
 
 </LinearLayout>

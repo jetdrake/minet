@@ -1,22 +1,24 @@
 package com.micool.minet;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.micool.minet.Fragments.Connector;
 import com.micool.minet.Fragments.Sensors;
 
-public class Navigation extends AppCompatActivity
+public class Navigation extends MainActivity
     implements Sensors.SensorsListener, Connector.ConnectorListener {
 
     Sensors sensors;
     Connector connector;
-    CheckBox useLive;
+    ToggleButton useLive;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,11 +34,23 @@ public class Navigation extends AppCompatActivity
                 .commit();
 
         useLive = findViewById(R.id.useLive);
+        //if(connector.isConnected()) useLive.setEnabled(true);
     }
 
     @Override
     public void onInputSensorsSent(String data) {
         if(useLive.isChecked()) connector.easyPublish(data, "realtime");
         //Log.d("realtime", data);
+    }
+
+    @Override
+    public void onConnectionSent(Boolean connection) {
+        if (connection) {
+            useLive.setEnabled(true);
+        } else {
+            if (useLive.isChecked()) useLive.setChecked(false);
+            useLive.setEnabled(false);
+        }
+
     }
 }

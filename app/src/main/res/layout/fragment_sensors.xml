@@ -2,8 +2,7 @@
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_centerHorizontal="true">
+    android:layout_height="wrap_content">
 
     <TableRow>
         <TextView
@@ -34,7 +33,6 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:layout_column="1"
             android:text="x"/>
 
         <TextView
@@ -43,7 +41,6 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:layout_column="2"
             android:text="y" />
 
         <TextView
@@ -52,7 +49,6 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:layout_column="3"
             android:text="z"/>
 
     </TableRow>
@@ -85,7 +81,6 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:layout_column="1"
             android:text="x"/>
 
         <TextView
@@ -94,7 +89,6 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:layout_column="2"
             android:text="y" />
 
         <TextView
@@ -103,52 +97,31 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:layout_column="3"
             android:text="z"/>
 
 
 
     </TableRow>
 
-    <TableRow>
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
 
-        <RadioGroup
-            android:orientation="horizontal"
-            android:id="@+id/radioDataTypes"
-            android:layout_weight="1">
-
-            <RadioButton
-                android:id="@+id/dataAll"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="All"
-                android:checked="true"
-                />
-            <RadioButton
-                android:id="@+id/dataReduced"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:text="Reduced"
-                android:layout_weight="1"
-                />
-            <RadioButton
-                android:id="@+id/dataNormal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Normal"
-                />
-
-        </RadioGroup>
+        <EditText
+            android:id="@+id/delayText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="numberDecimal"
+            android:hint="Sensor Delay in ms"/>
 
         <Button
-            android:id="@+id/stepBtn"
-            android:layout_height="wrap_content"
+            android:id="@+id/delayBtn"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Step"/>
-
+            android:text="Enter"/>
 
     </TableRow>
 

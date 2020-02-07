@@ -13,7 +13,7 @@
     <TableRow>
 
         <EditText
-            android:paddingTop="50dp"
+            android:paddingTop="10dp"
             android:id="@+id/roomsText"
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -39,6 +39,18 @@
         android:textOff="Start"
         android:textOn="Stop" />
 
+    <TableRow>
+
+        <Button
+            android:id="@+id/stepBtn"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:text="Step"/>
+
+
+    </TableRow>
+
     <RadioGroup
         android:id="@+id/radioGroup"
         android:layout_width="match_parent"
@@ -49,15 +61,12 @@
     </RadioGroup>
 
     <TableRow>
-        <androidx.appcompat.widget.AppCompatCheckBox
-            android:id="@+id/use"
-            ></androidx.appcompat.widget.AppCompatCheckBox>
 
         <EditText
             android:paddingTop="50dp"
             android:id="@+id/dbtext"
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="enter db"
@@ -65,15 +74,24 @@
 
         <Button
             android:id="@+id/send"
+            android:layout_weight="0"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Send DB" />
 
         <Button
             android:id="@+id/db"
+            android:layout_weight="0"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:text="Get DB" />
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/use"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:enabled="false" />
 
     </TableRow>
 

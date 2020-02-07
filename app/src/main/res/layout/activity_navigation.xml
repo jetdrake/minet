@@ -17,8 +17,8 @@
         android:id="@+id/navSensorContainer"/>
 
     <TableRow
-        android:layout_gravity="center"
-        >
+        android:paddingTop="10dp"
+        android:layout_gravity="center">
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -27,9 +27,30 @@
             android:textAlignment="center"
             android:text="Send real-time data"
             />
-        <androidx.appcompat.widget.AppCompatCheckBox
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:id="@+id/useLive"
+            android:enabled="false"
+            android:textOff="send"
+            android:textOn="stop"
+            >
+
+        </ToggleButton>
+    </TableRow>
+
+    <TableRow
+        android:paddingTop="10dp"
+        android:layout_gravity="center">
+        <TextView
+            android:id="@+id/subscribeText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="subscription data"
+            android:textSize="28dp"
+            android:textAlignment="center"
             />
     </TableRow>
 

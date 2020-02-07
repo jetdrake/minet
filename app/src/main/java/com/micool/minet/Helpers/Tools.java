@@ -1,8 +1,6 @@
 package com.micool.minet.Helpers;
 
-import android.util.Log;
-
-import com.micool.minet.Data;
+import com.micool.minet.DataClasses.Data;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,8 +19,8 @@ public class Tools {
             obj.put("azimuth", ""+data.getAzimuth());
             obj.put("pitch", ""+data.getPitch());
             obj.put("roll", ""+data.getRoll());
-            obj.put("ID", ""+data.getID());
-            obj.put("direction",data.getDirection());
+//            obj.put("id", ""+data.getID());
+//            obj.put("direction",data.getDirection());
 
             return obj.toString();
         } catch (JSONException e) {
@@ -49,10 +47,10 @@ public class Tools {
             orientation[2] = Float.parseFloat(reader.getString("roll"));
 
             tesla = reader.getDouble("tesla");
-            ID = reader.getString("ID");
-            direction = reader.getString("direction");
+//            ID = reader.getString("id");
+//            direction = reader.getString("direction");
 
-            Data data = new Data(mag, tesla, orientation, ID, direction);
+            Data data = new Data(mag, tesla, orientation);
             //Log.d("convert", data.toString());
 
             return data;

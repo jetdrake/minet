@@ -47,6 +47,7 @@ public class Connector extends Fragment {
     Button connect;
 
     public interface ConnectorListener{
+        void onConnectionSent(Boolean connection);
 
     }
 
@@ -85,7 +86,7 @@ public class Connector extends Fragment {
     public void onPause() {
         super.onPause();
         try {
-            disconnect(client);
+            if(connected) disconnect(client);
         } catch (MqttException e) {
             e.printStackTrace();
         }
@@ -159,6 +160,7 @@ public class Connector extends Fragment {
     }
 
     public void disconnect(@NonNull MqttAndroidClient client) throws MqttException {
+        listener.onConnectionSent(false);
         IMqttToken mqttToken = client.disconnect();
         mqttToken.setActionCallback(new IMqttActionListener() {
             @Override
@@ -300,6 +302,7 @@ public class Connector extends Fragment {
         listener = null;
     }
 
+
     public boolean isConnected() {
         return connected;
     }
@@ -308,11 +311,13 @@ public class Connector extends Fragment {
         connection.setTextColor(Color.GREEN);
         connect.setText("Disconnect");
         connected = true;
+        listener.onConnectionSent(true);
     }
 
     public void onDisconnect () {
         connection.setTextColor(Color.RED);
         connect.setText("Connect");
         connected = false;
+        listener.onConnectionSent(false);
     }
 }
