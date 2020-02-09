@@ -4,8 +4,8 @@ import java.sql.Timestamp;
 
 public class Data {
     private float x, y, z;
-    private float azimuth, pitch, roll;
-    private double tesla;
+//    private float azimuth, pitch, roll;
+//    private double tesla;
 //    private String direction;
 //    private String id;
 
@@ -50,26 +50,26 @@ public class Data {
 //        this.direction = "Not Formatted";
 //    }
 
-    public Data(float[] mag, double tesla, float[] orientation) {
+    public Data(float[] mag) {
         this.x = mag[0];
         this.y = mag[1];
         this.z = mag[2];
-        this.tesla = tesla;
-        this.azimuth = orientation[0];
-        this.pitch = orientation[1];
-        this.roll = orientation[2];
+//        this.tesla = tesla;
+//        this.azimuth = orientation[0];
+//        this.pitch = orientation[1];
+//        this.roll = orientation[2];
 //        this.id = id;
 //        this.direction = direction;
     }
 
-    public Data(float x, float y, float z, float azimuth, float pitch, float roll, double tesla) {
+    public Data(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.azimuth = azimuth;
-        this.pitch = pitch;
-        this.roll = roll;
-        this.tesla = tesla;
+//        this.azimuth = azimuth;
+//        this.pitch = pitch;
+//        this.roll = roll;
+//        this.tesla = tesla;
 //        this.id = id;
 //        this.direction = direction;
     }
@@ -94,21 +94,21 @@ public class Data {
         return z;
     }
 
-    public double getTesla() {
-        return tesla;
-    }
-
-    public float getAzimuth() {
-        return azimuth;
-    }
-
-    public float getPitch() {
-        return pitch;
-    }
-
-    public float getRoll() {
-        return roll;
-    }
+//    public double getTesla() {
+//        return tesla;
+//    }
+//
+//    public float getAzimuth() {
+//        return azimuth;
+//    }
+//
+//    public float getPitch() {
+//        return pitch;
+//    }
+//
+//    public float getRoll() {
+//        return roll;
+//    }
 
 //    public String getDirection() {
 //        return direction;
@@ -117,4 +117,9 @@ public class Data {
 //    public void setDirection(String direction) {
 //        this.direction = direction;
 //    }
+
+    @Override
+    public String toString() {
+        return x + ", " + y + ", " + z;
+    }
 }

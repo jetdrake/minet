@@ -1,6 +1,7 @@
 package com.micool.minet.Helpers;
 
 import com.micool.minet.DataClasses.Data;
+import com.micool.minet.DataClasses.MetaData;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,20 +10,15 @@ import org.json.JSONObject;
 public class Tools {
 
 
-    public static String dataToJSON(Data data){
+    public static JSONObject dataToJSON(Data data){
         try {
             JSONObject obj = new JSONObject();
-            obj.put("x", ""+data.getX());
-            obj.put("y", ""+data.getY());
-            obj.put("z", ""+data.getZ());
-            obj.put("tesla", ""+data.getTesla());
-            obj.put("azimuth", ""+data.getAzimuth());
-            obj.put("pitch", ""+data.getPitch());
-            obj.put("roll", ""+data.getRoll());
-//            obj.put("id", ""+data.getID());
-//            obj.put("direction",data.getDirection());
+            obj.put("x", data.getX());
+            obj.put("y", data.getY());
+            obj.put("z", data.getZ());
 
-            return obj.toString();
+
+            return obj;
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -33,24 +29,12 @@ public class Tools {
         try {
             JSONObject reader = new JSONObject(json);
             float [] mag = new float[3];
-            float [] orientation = new float[3];
-            double tesla;
-            String ID;
-            String direction;
 
             mag[0] = Float.parseFloat(reader.getString("x"));
             mag[1] = Float.parseFloat(reader.getString("y"));
             mag[2] = Float.parseFloat(reader.getString("z"));
 
-            orientation[0] = Float.parseFloat(reader.getString("azimuth"));
-            orientation[1] = Float.parseFloat(reader.getString("pitch"));
-            orientation[2] = Float.parseFloat(reader.getString("roll"));
-
-            tesla = reader.getDouble("tesla");
-//            ID = reader.getString("id");
-//            direction = reader.getString("direction");
-
-            Data data = new Data(mag, tesla, orientation);
+            Data data = new Data(mag);
             //Log.d("convert", data.toString());
 
             return data;
@@ -59,5 +43,39 @@ public class Tools {
         }
         return null;
     }
+
+    public static JSONObject metaToJSON(MetaData meta) {
+        try {
+            JSONObject obj = new JSONObject();
+            obj.put("direction", meta.getDirection());
+            obj.put("stepId", meta.getStepId());
+            obj.put("room", meta.getRoom());
+
+
+            return obj;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
+    public static JSONObject dataPackToJSON(MetaData meta, Data data) {
+        try {
+            JSONObject obj = new JSONObject();
+            obj.put("direction", meta.getDirection());
+            obj.put("stepId", meta.getStepId());
+            obj.put("room", meta.getRoom());
+            obj.put("x", data.getX());
+            obj.put("y", data.getY());
+            obj.put("z", data.getZ());
+            return obj;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
 
 }

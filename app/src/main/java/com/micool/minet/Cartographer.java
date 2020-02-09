@@ -41,7 +41,6 @@ public class Cartographer extends MainActivity implements Sensors.SensorsListene
     Button senddb;
 
     int stepCount = 1;
-    Button stepBtn;
 
     //Radio Buttons and Dynamic adding
     TableLayout layout;
@@ -68,18 +67,6 @@ public class Cartographer extends MainActivity implements Sensors.SensorsListene
                 .replace(R.id.sensorContainer, sensors)
                 .commit();
 
-        //step button
-        stepBtn = findViewById(R.id.stepBtn);
-        stepBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                needs to call method that partitions the data into steps
-                sensors.onStep();
-//                sensors..add(Tools.dataToJSON(averageTempData()));
-//                tempData.clear();
-                stepBtn.setText(""+ stepCount++);
-            }
-        });
 
         //radio button set up
         layout = findViewById(R.id.rootContainer);
@@ -188,7 +175,7 @@ public class Cartographer extends MainActivity implements Sensors.SensorsListene
         //String json = sensors.getDataPackJson();
 
         //send to db with Timestamp
-        LinkedHashMap<MetaData, ArrayList<Data>> map = sensors.getDataPack();
+        LinkedHashMap<MetaData, Data> map = sensors.getDataPack();
 
         Iterator it = map.entrySet().iterator();
 

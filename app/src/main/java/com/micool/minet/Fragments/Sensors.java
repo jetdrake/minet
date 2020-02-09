@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import com.google.gson.Gson;
 import com.micool.minet.DataClasses.Data;
 import com.micool.minet.DataClasses.MetaData;
+import com.micool.minet.Helpers.DataManager;
 import com.micool.minet.Helpers.SOTWFormatter;
 import com.micool.minet.R;
 import com.micool.minet.Helpers.Tools;
@@ -72,6 +73,7 @@ public class Sensors extends Fragment implements SensorEventListener {
     TextView accz;
     EditText delayText;
     Button delayBtn;
+    Button stepBtn;
 
     boolean checkSensor = false;
     float delay = 100f;
@@ -80,14 +82,8 @@ public class Sensors extends Fragment implements SensorEventListener {
     String [] rooms;
     int activeRoomID;
     boolean start = false;
-    Data currentData;
-    MetaData currentMeta;
-    //persistent storage
-    ArrayList<String> dataJson = new ArrayList<String>();
-    //temp storage
-    ArrayList<Data> tempData = new ArrayList<Data>();
 
-    LinkedHashMap<MetaData, ArrayList<Data>> dataPack = new LinkedHashMap<MetaData, ArrayList<Data>>();
+    DataManager dm = new DataManager();
 
 
 
@@ -124,6 +120,17 @@ public class Sensors extends Fragment implements SensorEventListener {
             }
         });
 
+        stepBtn = view.findViewById(R.id.stepBtn);
+        stepBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                needs to call method that partitions the data into steps
+                onStep();
+//                sensors..add(Tools.dataToJSON(averageTempData()));
+//                tempData.clear();
+                stepBtn.setText(""+ (int) stepId);
+            }
+        });
 
         return view;
     }
@@ -181,7 +188,7 @@ public class Sensors extends Fragment implements SensorEventListener {
 
     }
 
-
+    //makes the sensor update very slowly in UI, so probably not suitable for slowing send rate
     public void setSensorDelayInSeconds(int time){
         time *= 1000000;
         try {
@@ -265,15 +272,23 @@ public class Sensors extends Fragment implements SensorEventListener {
 
                 direction = formatter.formatNum(lazimuth);
 
-                accreading.setText(formatter.format(lazimuth));
+                accreading.setText(direction);
             }
 
+            // locally stored
+            MetaData meta = new MetaData(direction, " "+stepId, rooms == null ? "N/A" : rooms[activeRoomID]);
+            Data data = new Data(mGeomagnetic);
 
-            //timed code
-            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-            Log.d(TAG, "reading at: " + timestamp.toString());
-            currentData = createCurrentData();
-            listener.onInputSensorsSent(getCurrentDataJSON());
+
+            if(start && dm.getCurrentMeta() != null){
+                //Log.d(TAG, dm.getCurrentMeta().getDirection() + ", " + direction);
+                if (!dm.getCurrentMeta().getDirection().equals(direction)) {
+                    dm.AddToDataPackFromCurrent();
+                    Log.d(TAG, dm.getCurrentMetaJSON() + ": " + dm.getCurrentDataJSON());
+                }
+            }
+
+            dm.createCurrentData(start, meta, data);
 
 //      }
     }
@@ -283,57 +298,24 @@ public class Sensors extends Fragment implements SensorEventListener {
         Toast.makeText(getActivity(), "wow that's bad", Toast.LENGTH_SHORT);
     }
 
-    private void createData(boolean start, int dataID) {
-        if(start == true){
-            String data = Tools.dataToJSON(currentData);
-            Log.d("data", data);
-            dataJson.add(data);
-        }
-    }
-
-    private Data createCurrentData () {
-        if (currentMeta == null && rooms != null) currentMeta = new MetaData(direction, ""+ ++stepId ,rooms[activeRoomID]);
-        Data data = new Data(mGeomagnetic, tesla, orientation);
-
-        if(start) tempData.add(data);
-
-        return data;
-    }
-
-    private Data averageTempData (){
-        float x = 0, y = 0, z = 0, azimuth = 0, pitch = 0, roll = 0;
-        double tesla = 0;
-        for (Data data : tempData) {
-            x += data.getX();
-            y += data.getY();
-            z += data.getZ();
-            azimuth += data.getAzimuth();
-            pitch += data.getPitch();
-            roll += data.getRoll();
-            tesla += data.getTesla();
-        }
-
-        x /= tempData.size();
-        y /= tempData.size();
-        z /= tempData.size();
-        azimuth /= tempData.size();
-        pitch /= tempData.size();
-        roll /= tempData.size();
-        tesla /= tempData.size();
-
-
-        return new Data(x,y,z,azimuth,pitch,roll,tesla);
-
-    }
-
-    public String getCurrentDataJSON() {
-        return Tools.dataToJSON(currentData);
-    }
-
     public void onStep(){
-        dataPack.put(currentMeta, tempData);
-        currentMeta = null;
+        if (start) {
+            dm.AddToDataPackFromCurrent();
+            Log.d(TAG, "Step " + stepId + ": " + dm.getCurrentMeta() + ": " + dm.getCurrentDataJSON());
+        }
+        stepId++;
+        // not the most elegant way of sending data, may need to introduce a timer based approach
+        listener.onInputSensorsSent(dm.getDataPackJson());
     }
+
+    public void onTurn() {
+        if (start) {
+            dm.AddToDataPackFromCurrent();
+            Log.d(TAG, "Step " + stepId + ": " + dm.getCurrentMeta() + ": " + dm.getCurrentDataJSON());
+            Toast.makeText(this.getActivity(), "Turn Direction: " + direction, Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     public boolean isStart() {
         return start;
@@ -359,20 +341,12 @@ public class Sensors extends Fragment implements SensorEventListener {
         this.activeRoomID = activeRoomID;
     }
 
-    public String getDataPackJson() {
-        Gson gson = new Gson();
-        String json = gson.toJson(dataPack);
-        Log.d("json", "getDataPackJson: "+ json);
-        return json;
+    public String getDataPackJson(){
+        return dm.getDataPackJson();
     }
 
-    public LinkedHashMap<MetaData, ArrayList<Data>> getDataPack(){
-        Log.d("dataPack", "getDataPack: "+ dataPack);
-        return dataPack;
-    }
-
-    public void setDataJson(ArrayList<String> dataJson) {
-        this.dataJson = dataJson;
+    public LinkedHashMap<MetaData, Data> getDataPack() {
+        return dm.getDataPack();
     }
 
 

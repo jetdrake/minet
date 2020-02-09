@@ -54,10 +54,6 @@ public class DataAdapter extends ArrayAdapter<Map<String, Object>>{
             x_value.setText(String.format(Locale.ENGLISH, "x: %.2f", thisData.getX()));
             y_value.setText(String.format(Locale.ENGLISH, "y: %.2f", thisData.getY()));
             z_value.setText(String.format(Locale.ENGLISH, "z: %.2f", thisData.getZ()));
-            tesla.setText(String.format(Locale.ENGLISH, "%.2f μT", thisData.getTesla()));
-            azimuth.setText(String.format(Locale.ENGLISH, "Azimuth: %.2f", thisData.getAzimuth()));
-            pitch.setText(String.format(Locale.ENGLISH, "Pitch: %.2f", thisData.getPitch()));
-            roll.setText(String.format(Locale.ENGLISH, "Roll: %.2f", thisData.getRoll()));
 
         }
 
