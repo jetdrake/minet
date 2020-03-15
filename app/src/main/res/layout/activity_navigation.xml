@@ -14,8 +14,14 @@
     <FrameLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
+        android:id="@+id/navStepContainer"/>
+
+    <FrameLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
         android:id="@+id/navSensorContainer"/>
 
+    <!--
     <TableRow
         android:paddingTop="10dp"
         android:layout_gravity="center">
@@ -39,6 +45,16 @@
 
         </ToggleButton>
     </TableRow>
+    -->
+    <TableRow>
+        <Button
+            android:id="@+id/stepID"
+            android:layout_height="100dp"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:enabled="true"
+            android:text="Step"/>
+    </TableRow>
 
     <TableRow
         android:paddingTop="10dp"
@@ -54,5 +70,9 @@
             />
     </TableRow>
 
+    <com.micool.minet.Views.GraphView
+        android:id="@+id/myview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </TableLayout>

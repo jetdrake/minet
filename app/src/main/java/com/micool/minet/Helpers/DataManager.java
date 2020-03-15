@@ -3,18 +3,16 @@ package com.micool.minet.Helpers;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.micool.minet.DataClasses.Data;
-import com.micool.minet.DataClasses.MetaData;
-
-import org.json.JSONObject;
+import com.micool.minet.Models.Data;
+import com.micool.minet.Models.MetaData;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 public class DataManager {
 
-    private Data currentData = new Data(0.0f, 0.0f, 0.0f);
-    private MetaData currentMeta = new MetaData("N", "0", "N/A"); //initialized to defaults
+    private Data currentData;
+    private MetaData currentMeta;
     //persistent storage
     private ArrayList<String> dataJson = new ArrayList<String>();
     //temp storage
@@ -37,31 +35,13 @@ public class DataManager {
 
     public void AddToDataPackFromCurrent () {
         AddToDataPack(currentMeta, currentData);
-    }
-
-    private Data averageTempData (){
-        float x = 0, y = 0, z = 0;
-
-        for (Data data : tempData) {
-            x += data.getX();
-            y += data.getY();
-            z += data.getZ();
-
-        }
-
-        x /= tempData.size();
-        y /= tempData.size();
-        z /= tempData.size();
-
-
-        return new Data(x,y,z);
-
+        Log.d("dataPack", "getDataPack: "+ dataPack);
     }
 
     public void createCurrentData(boolean start, MetaData meta, Data data) {
         if (start){
-            setCurrentMeta(meta);
-            setCurrentData(data);
+            if (meta != null) setCurrentMeta(meta);
+            if (data != null) setCurrentData(data);
         }
     }
 
@@ -82,15 +62,15 @@ public class DataManager {
     }
 
     public String getCurrentDataJSON() {
-        return Tools.dataToJSON(currentData).toString();
+        return Serializer.dataToJSON(currentData).toString();
     }
 
     public String getCurrentMetaJSON() {
-        return Tools.metaToJSON(currentMeta).toString();
+        return Serializer.metaToJSON(currentMeta).toString();
     }
 
     public String getCurrentDataPackJSON() {
-        return Tools.dataPackToJSON(currentMeta, currentData).toString();
+        return Serializer.dataPackToJSON(currentMeta, currentData).toString();
     }
 
     public String getDataPackJson() {

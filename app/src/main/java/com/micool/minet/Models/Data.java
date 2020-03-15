@@ -1,6 +1,4 @@
-package com.micool.minet.DataClasses;
-
-import java.sql.Timestamp;
+package com.micool.minet.Models;
 
 public class Data {
     private float x, y, z;

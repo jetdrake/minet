@@ -28,7 +28,7 @@
         <activity
             android:name=".Navigation"
             android:label="@string/app_name"/>
-        <activity android:name=".RoomDB" /> <!-- Mqtt Service -->
+        <!-- Mqtt Service -->
         <service android:name="org.eclipse.paho.android.service.MqttService" />
     </application>
 

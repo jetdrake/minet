@@ -1,4 +1,4 @@
-package com.micool.minet.DataClasses;
+package com.micool.minet.Models;
 
 public class MetaData {
     private String direction;

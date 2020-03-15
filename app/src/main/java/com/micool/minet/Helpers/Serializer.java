@@ -1,13 +1,13 @@
 package com.micool.minet.Helpers;
 
-import com.micool.minet.DataClasses.Data;
-import com.micool.minet.DataClasses.MetaData;
+import com.micool.minet.Models.Data;
+import com.micool.minet.Models.MetaData;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class Tools {
+public class Serializer {
 
 
     public static JSONObject dataToJSON(Data data){

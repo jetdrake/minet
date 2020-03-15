@@ -6,9 +6,143 @@
     android:orientation="vertical" >
 
     <FrameLayout
-        android:id="@+id/sensorContainer"
+        android:id="@+id/carSensorContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+    <TableRow>
+        <TextView
+            android:paddingTop="10dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="Mag Data"
+            android:textSize="36sp"/>
+
+        <TextView
+            android:id="@+id/reading"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="0.0"
+            android:textSize="36sp"/>
+
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/x"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="x"/>
+
+        <TextView
+            android:id="@+id/y"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="y" />
+
+        <TextView
+            android:id="@+id/z"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="z"/>
+
+    </TableRow>
+
+    <TableRow>
+        <TextView
+            android:paddingTop="10dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="Grav Data"
+            android:textSize="36sp"/>
+
+        <TextView
+            android:id="@+id/accreading"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="0.0"
+            android:textSize="36sp"/>
+
+    </TableRow>
+
+    <TableRow>
+        <TextView
+            android:id="@+id/accx"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="x"/>
+
+        <TextView
+            android:id="@+id/accy"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="y" />
+
+        <TextView
+            android:id="@+id/accz"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="z"/>
+
+
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+        <EditText
+            android:id="@+id/delayText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="numberDecimal"
+            android:hint="Sensor Delay in ms"/>
+
+        <Button
+            android:id="@+id/delayBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Enter"/>
+
+    </TableRow>
+
+
+    <TableRow>
+
+        <Button
+            android:id="@+id/stepBtn"
+            android:layout_height="100dp"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:text="Step"/>
+
+
+    </TableRow>
 
     <TableRow>
 
@@ -66,20 +200,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Send DB" />
-
-        <Button
-            android:id="@+id/db"
-            android:layout_weight="0"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:enabled="false"
-            android:text="Get DB" />
-        <androidx.appcompat.widget.AppCompatCheckBox
-            android:id="@+id/use"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:enabled="false" />
 
     </TableRow>
 

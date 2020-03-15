@@ -1,6 +1,7 @@
 package com.micool.minet.Fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,7 +26,10 @@ import com.micool.minet.R;
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -48,7 +52,8 @@ public class Connector extends Fragment {
 
     public interface ConnectorListener{
         void onConnectionSent(Boolean connection);
-
+        void onSubscriptionDataSent(String data);
+        void onMapSent(String data);
     }
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
@@ -78,6 +83,8 @@ public class Connector extends Fragment {
                 }
             }
         });
+
+
 
         return view;
     }
@@ -216,6 +223,7 @@ public class Connector extends Fragment {
     public void easyPublish(@NonNull String msg, @NonNull String topic){
         try {
             publishMessage(client, msg, 0, topic);
+            Log.d(TAG, "easyPublish: " + msg);
         } catch (MqttException e) {
             e.printStackTrace();
             Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
@@ -226,11 +234,12 @@ public class Connector extends Fragment {
     }
 
     public void subscribe(@NonNull MqttAndroidClient client, @NonNull final String topic, int qos) throws MqttException {
-        IMqttToken token = client.subscribe(topic, qos);
+        final IMqttToken token = client.subscribe(topic, qos);
         token.setActionCallback(new IMqttActionListener() {
             @Override
             public void onSuccess(IMqttToken iMqttToken) {
                 Log.d(TAG, "Subscribe Successfully " + topic);
+                onSubscribe();
             }
 
             @Override
@@ -302,7 +311,6 @@ public class Connector extends Fragment {
         listener = null;
     }
 
-
     public boolean isConnected() {
         return connected;
     }
@@ -312,6 +320,13 @@ public class Connector extends Fragment {
         connect.setText("Disconnect");
         connected = true;
         listener.onConnectionSent(true);
+        try {
+            subscribe(client, "result", 0);
+            subscribe(client, "map", 0);
+            easyPublish("connect", "connect");
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
     }
 
     public void onDisconnect () {
@@ -319,5 +334,30 @@ public class Connector extends Fragment {
         connect.setText("Connect");
         connected = false;
         listener.onConnectionSent(false);
+    }
+
+    public void onSubscribe(){
+        client.setCallback(new MqttCallback() {
+            @Override
+            public void connectionLost(Throwable cause) {
+                Log.d(TAG, "connectionLost: ");
+            }
+
+            @Override
+            public void messageArrived(String topic, MqttMessage message) throws Exception {
+                if (topic.equalsIgnoreCase("map")) listener.onMapSent(message.toString());
+                if (topic.equalsIgnoreCase("result")) listener.onSubscriptionDataSent(message.toString());
+                Log.i(TAG, "messageArrived: "+message+" from topic: "+ topic);
+            }
+
+            @Override
+            public void deliveryComplete(IMqttDeliveryToken token) {
+                try {
+                    Log.d(TAG, "deliveryComplete: " + token.getMessage());
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }

@@ -21,12 +21,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.gson.Gson;
-import com.micool.minet.DataClasses.Data;
-import com.micool.minet.DataClasses.MetaData;
+import com.micool.minet.Models.Data;
+import com.micool.minet.Models.MetaData;
 import com.micool.minet.Helpers.DataManager;
 import com.micool.minet.Helpers.SOTWFormatter;
 import com.micool.minet.R;
-import com.micool.minet.Helpers.Tools;
+import com.micool.minet.Helpers.Serializer;
 
 import java.lang.reflect.Array;
 import java.sql.Timestamp;
@@ -43,6 +43,10 @@ public class Sensors extends Fragment implements SensorEventListener {
 
     public interface SensorsListener {
         void onInputSensorsSent(String data);
+        void onMagDataSent(float[] mag);
+        void onGravDataSent(float[] grav);
+        void onDirectionSent(String direction);
+        void onTeslaSent(double tesla);
     }
 
     //sensors
@@ -90,13 +94,14 @@ public class Sensors extends Fragment implements SensorEventListener {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        View view  = inflater.inflate(R.layout.fragment_sensors, container, false);
+        //View view  = inflater.inflate(R.layout.fragment_sensors, container, false);
         //get SensorManager and create sensors (on every creation)
-        sensorManager = (SensorManager)this.getActivity().getSystemService(SENSOR_SERVICE);
+        sensorManager = (SensorManager) this.getActivity().getSystemService(SENSOR_SERVICE);
         magSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         gravSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         //stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
 
+        /*
         //get buttons and views for magnet and acc data
         reading = view.findViewById(R.id.reading);
         x = view.findViewById(R.id.x);
@@ -131,8 +136,8 @@ public class Sensors extends Fragment implements SensorEventListener {
                 stepBtn.setText(""+ (int) stepId);
             }
         });
-
-        return view;
+        */
+        return null;
     }
 
     @Override
@@ -155,8 +160,10 @@ public class Sensors extends Fragment implements SensorEventListener {
     public void onResume() {
         super.onResume();
 
+
         int delayMS = SensorManager.SENSOR_DELAY_GAME;
 
+        /*
         Intent intent = getActivity().getIntent();
         delay = intent.getFloatExtra("delay", -1.0f);
 
@@ -164,6 +171,7 @@ public class Sensors extends Fragment implements SensorEventListener {
             delayMS = (int)(delay * 1000);
             delayText.setText(""+delay);
         }
+        */
 
         if(magSensor != null){
             sensorManager.registerListener(this, magSensor, delayMS);
@@ -203,12 +211,14 @@ public class Sensors extends Fragment implements SensorEventListener {
         }
     }
 
+    /*
     public void refreshActivity() {
         Intent intent = getActivity().getIntent();
         intent.putExtra("delay", delay);
         getActivity().finish();
         startActivity(intent);
     }
+    */
 
     @Override
     public void onPause() {
@@ -245,14 +255,19 @@ public class Sensors extends Fragment implements SensorEventListener {
                 mGeomagnetic[2] = alpha * mGeomagnetic[2] + (1 - alpha)
                         * event.values[2];
 
+                /*
                 x.setText(String.format(Locale.ENGLISH, "x: %.2f", mGeomagnetic[0]));
                 y.setText(String.format(Locale.ENGLISH, "y: %.2f", mGeomagnetic[1]));
                 z.setText(String.format(Locale.ENGLISH, "z: %.2f", mGeomagnetic[2]));
-
+                */
                 tesla = Math.sqrt((mGeomagnetic[0] * mGeomagnetic[0]) + (mGeomagnetic[1] * mGeomagnetic[1]) + (mGeomagnetic[2] * mGeomagnetic[2]));
 
+                listener.onMagDataSent(mGeomagnetic);
+                listener.onTeslaSent(tesla);
+                /*
                 String text = String.format(Locale.ENGLISH, "%.2f μT", tesla);
                 reading.setText(text);
+                 */
             }
 
             //rotation matrix
@@ -262,17 +277,22 @@ public class Sensors extends Fragment implements SensorEventListener {
                 SensorManager.getOrientation(Rm, orientation);
                 azimuth = orientation[0];
 
+                /*
                 accx.setText(String.format(Locale.ENGLISH, "azimuth: %.2f", orientation[0]));
                 accy.setText(String.format(Locale.ENGLISH, "pitch: %.2f", orientation[1]));
                 accz.setText(String.format(Locale.ENGLISH, "roll: %.2f", orientation[2]));
-
+                */
                 float lazimuth = (float) Math.toDegrees(azimuth);
                 lazimuth = (lazimuth + 360) % 360;
                 SOTWFormatter formatter = new SOTWFormatter();
 
                 direction = formatter.formatNum(lazimuth);
 
+                listener.onDirectionSent(direction);
+
+                /*
                 accreading.setText(direction);
+                 */
             }
 
             // locally stored
@@ -288,7 +308,8 @@ public class Sensors extends Fragment implements SensorEventListener {
                 }
             }
 
-            dm.createCurrentData(start, meta, data);
+            dm.createCurrentData(true, meta, data);
+            listener.onInputSensorsSent(dm.getCurrentDataPackJSON());
 
 //      }
     }
@@ -304,8 +325,7 @@ public class Sensors extends Fragment implements SensorEventListener {
             Log.d(TAG, "Step " + stepId + ": " + dm.getCurrentMeta() + ": " + dm.getCurrentDataJSON());
         }
         stepId++;
-        // not the most elegant way of sending data, may need to introduce a timer based approach
-        listener.onInputSensorsSent(dm.getDataPackJson());
+        Log.d(TAG, "onStep: " + stepId);
     }
 
     public void onTurn() {

@@ -20,10 +20,10 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.micool.minet.DataClasses.Data;
-import com.micool.minet.DataClasses.MetaData;
+import com.micool.minet.Models.Data;
+import com.micool.minet.Models.MetaData;
 import com.micool.minet.Fragments.Sensors;
-import com.micool.minet.Helpers.Tools;
+import com.micool.minet.Helpers.Serializer;
 
 import java.sql.Array;
 import java.sql.Timestamp;
@@ -31,13 +31,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 
 public class Cartographer extends MainActivity implements Sensors.SensorsListener {
     ToggleButton startSending;
     TextView input;
-    Button roomdb;
     Button senddb;
 
     int stepCount = 1;
@@ -48,7 +48,15 @@ public class Cartographer extends MainActivity implements Sensors.SensorsListene
     Button enter;
     TextView roomsText;
     String [] rooms;
-    CheckBox useDB;
+
+    TextView reading;
+    TextView x;
+    TextView y;
+    TextView z;
+    TextView accreading;
+    TextView accx;
+    TextView accy;
+    TextView accz;
 
     //database
     FirebaseFirestore db;
@@ -64,9 +72,17 @@ public class Cartographer extends MainActivity implements Sensors.SensorsListene
         //fragment stuff
         sensors = new Sensors();
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.sensorContainer, sensors)
+                .replace(R.id.carSensorContainer, sensors)
                 .commit();
 
+        reading = findViewById(R.id.reading);
+        x = findViewById(R.id.x);
+        y = findViewById(R.id.y);
+        z = findViewById(R.id.z);
+        accreading = findViewById(R.id.accreading);
+        accx = findViewById(R.id.accx);
+        accy = findViewById(R.id.accy);
+        accz = findViewById(R.id.accz);
 
         //radio button set up
         layout = findViewById(R.id.rootContainer);
@@ -113,8 +129,6 @@ public class Cartographer extends MainActivity implements Sensors.SensorsListene
             }
         });
 
-        useDB = findViewById(R.id.use);
-
         //controls the data sending
         startSending = findViewById(R.id.startButton);
         startSending.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -131,20 +145,6 @@ public class Cartographer extends MainActivity implements Sensors.SensorsListene
         });
 
         db = FirebaseFirestore.getInstance();
-
-        roomdb = findViewById(R.id.db);
-        roomdb.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Cartographer.this, RoomDB.class);
-                String text = input.getText().toString();
-                //controls whether gets local data or
-                intent.putExtra("useDB", useDB.isChecked());
-                intent.putExtra("local", sensors.getDataPackJson());
-                intent.putExtra("room", text.isEmpty() ? "default" : text);
-                view.getContext().startActivity(intent);
-            }
-        });
 
         senddb = findViewById(R.id.send);
         senddb.setOnClickListener(new View.OnClickListener() {
@@ -212,5 +212,29 @@ public class Cartographer extends MainActivity implements Sensors.SensorsListene
     @Override
     public void onInputSensorsSent(String data) {
 
+    }
+
+    @Override
+    public void onMagDataSent(float[] mag) {
+        x.setText(String.format(Locale.ENGLISH, "x: %.2f", mag[0]));
+        y.setText(String.format(Locale.ENGLISH, "y: %.2f", mag[1]));
+        z.setText(String.format(Locale.ENGLISH, "z: %.2f", mag[2]));
+    }
+
+    @Override
+    public void onGravDataSent(float[] grav) {
+        accx.setText(String.format(Locale.ENGLISH, "azimuth: %.2f", grav[0]));
+        accy.setText(String.format(Locale.ENGLISH, "pitch: %.2f", grav[1]));
+        accz.setText(String.format(Locale.ENGLISH, "roll: %.2f", grav[2]));
+    }
+
+    @Override
+    public void onDirectionSent(String direction) {
+        accreading.setText(direction);
+    }
+
+    @Override
+    public void onTeslaSent(double tesla) {
+        reading.setText(String.format(Locale.ENGLISH, "%.2f μT", tesla));
     }
 }
