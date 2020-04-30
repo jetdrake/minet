@@ -49,7 +49,7 @@ public class Navigation extends MainActivity
 
         FragmentManager fm = getSupportFragmentManager();
 
-        stepBtn = findViewById(R.id.stepID);
+        stepBtn = findViewById(R.id.navStepBtn);
         stepBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {

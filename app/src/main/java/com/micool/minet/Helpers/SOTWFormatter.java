@@ -7,7 +7,7 @@ package com.micool.minet.Helpers;
 public class SOTWFormatter {
     private static final int[] sides = {0, 45, 90, 135, 180, 225, 270, 315, 360};
     //can be made localized if needed with initmethod
-    private static String[] names = new String[] {"N", "NE", "E", "SE", "S", "SW", "S", "W", "NW", "N"};
+    private static String[] names = new String[] {"N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"};
 
     public String format(float azimuth) {
         int iAzimuth = (int)azimuth;

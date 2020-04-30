@@ -20,7 +20,7 @@ public class GraphView extends View {
     private Paint landmark;
     private Paint active;
     private Context myContext;
-    private int scale = 100;
+    private int scale = 80;
 
     final String TAG = "graph";
     private Mapper mapper = new Mapper();
@@ -68,7 +68,7 @@ public class GraphView extends View {
         int offset = scale / 2;
         for (Coordinate it : mapper.getMap()) {
             //int invY = getHeight() - it.y;
-            int x = it.getX() * scale + cx;
+            int x = it.getX() * scale + 20 ;// + cx;
             int y = it.getY() * scale + 50;
             Log.d(TAG, "onDraw: "+ x+", "+y);
             if (it.isActive()){

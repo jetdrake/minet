@@ -4,4 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <TableRow>
+
+        <Button
+            android:id="@+id/stepBtn"
+            android:layout_height="100dp"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:text="Step"/>
+
+
+    </TableRow>
+
 </TableLayout>

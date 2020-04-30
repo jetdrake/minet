@@ -136,10 +136,10 @@ public class Cartographer extends MainActivity implements Sensors.SensorsListene
                 if (isChecked) {
                     Toast.makeText(Cartographer.this, "reading data" ,Toast.LENGTH_SHORT).show();
                     if (rooms == null && !enter.getText().toString().isEmpty()) enter.performClick();
-                    sensors.setStart(true);
+                    sensors.onSetStart(true);
                 } else {
                     Toast.makeText(Cartographer.this, "stopping data" ,Toast.LENGTH_SHORT).show();
-                    sensors.setStart(false);
+                    sensors.onSetStart(false);
                 }
             }
         });

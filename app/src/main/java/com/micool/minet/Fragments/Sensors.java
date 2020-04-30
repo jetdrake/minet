@@ -67,16 +67,6 @@ public class Sensors extends Fragment implements SensorEventListener {
 
     String TAG = "sensors";
 
-    TextView reading;
-    TextView x;
-    TextView y;
-    TextView z;
-    TextView accreading;
-    TextView accx;
-    TextView accy;
-    TextView accz;
-    EditText delayText;
-    Button delayBtn;
     Button stepBtn;
 
     boolean checkSensor = false;
@@ -94,41 +84,22 @@ public class Sensors extends Fragment implements SensorEventListener {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        //View view  = inflater.inflate(R.layout.fragment_sensors, container, false);
+        View view  = inflater.inflate(R.layout.fragment_sensors, container, false);
         //get SensorManager and create sensors (on every creation)
         sensorManager = (SensorManager) this.getActivity().getSystemService(SENSOR_SERVICE);
         magSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         gravSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         //stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
 
-        /*
-        //get buttons and views for magnet and acc data
-        reading = view.findViewById(R.id.reading);
-        x = view.findViewById(R.id.x);
-        y = view.findViewById(R.id.y);
-        z = view.findViewById(R.id.z);
-
-        accreading = view.findViewById(R.id.accreading);
-        accx = view.findViewById(R.id.accx);
-        accy = view.findViewById(R.id.accy);
-        accz = view.findViewById(R.id.accz);
-
-        delayText = view.findViewById(R.id.delayText);
-        delayBtn = view.findViewById(R.id.delayBtn);
-
-        delayBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //if user has submitted a value then the delay will be set
-                if(!delayText.getText().toString().isEmpty()) delay = Float.parseFloat(delayText.getText().toString());
-                refreshActivity();
-            }
-        });
-
         stepBtn = view.findViewById(R.id.stepBtn);
         stepBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(start){
+                    stepBtn.setEnabled(true);
+                } else {
+                    stepBtn.setEnabled(false);
+                }
 //                needs to call method that partitions the data into steps
                 onStep();
 //                sensors..add(Tools.dataToJSON(averageTempData()));
@@ -136,8 +107,7 @@ public class Sensors extends Fragment implements SensorEventListener {
                 stepBtn.setText(""+ (int) stepId);
             }
         });
-        */
-        return null;
+        return view;
     }
 
     @Override
@@ -287,7 +257,7 @@ public class Sensors extends Fragment implements SensorEventListener {
                 SOTWFormatter formatter = new SOTWFormatter();
 
                 direction = formatter.formatNum(lazimuth);
-
+                listener.onGravDataSent(orientation);
                 listener.onDirectionSent(direction);
 
                 /*
@@ -336,6 +306,10 @@ public class Sensors extends Fragment implements SensorEventListener {
         }
     }
 
+    public void onSetStart(Boolean start){
+        setStart(start);
+        stepBtn.setEnabled(start);
+    }
 
     public boolean isStart() {
         return start;
